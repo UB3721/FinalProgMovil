@@ -1,6 +1,6 @@
 package com.df.base.model.mangadex
 import kotlinx.serialization.Serializable
-
+@Serializable
 data class MangaAttributes(
     val title: Map<String, String>?,
     val altTitles: List<Map<String, String>>?,
