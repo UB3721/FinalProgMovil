@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">Base</string>
+    <string name = "search_list">Search</string>
+    <string name = "list">List</string>
+    <string name = "forum">Forum</string>
+    <string name = "collection">Collection</string>
+    <string name = "favorites">Favorites</string>
+    <string name = "profile">Profile</string>
+    <string name = "add_element">Add new element</string>
+    <string name = "display"> Manga </string>
+
+    <string name="description_search">Search Manga</string>
+    <string name="no_results_found">No results found</string>
+    <string name="dialog_add_manga">Do you want to add this media?</string>
+    <string name="waiting_for_search">Search a manga</string>
+    <string name="label_links">Links</string>
+    <string name="site_link">"Site Link"</string>
+    <string name="alt_site_link">Alt Site Link</string>
+    <string name="status_info">Status Info</string>
+    <string name="current_chapter">Current Chapter</string>
+    <string name="rating_label">Rating (e.g., 4.5)</string>
+    <string name="reading">Reading</string>
+    <string name="completed">Completed</string>
+    <string name="dropped">Dropped</string>
+    <string name="on_hold">On Hold</string>
+    <string name="reading_status">Reading Status</string>
+    <string name="notes">Notes</string>
+    <string name="add_notes_here">Add your notes here</string>
+    <string name="submit">Submit</string>
+    <string name="empty_user_manga_list">Nothing here…</string>
+    <string name="no_title">No Title</string>
+    <string name="no_description">No Description</string>
+    <string name="cover">Cover</string>
+
+    <string name="favorite">Favorite</string>
+    <string name="not_favorite">Not Favorite</string>
+
+    <string name="select_user_to_share">Select user to share</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="selected_user">%1$s#%2$s</string>
+
+    <string name="main_link_display">Main Link: %1$s</string>
+    <string name="alt_link_display">Alternate Link: %1$s</string>
+    <string name="current_chapter_display">Current Chapter: %1$s</string>
+    <string name="rating_display">Rating: %1$s</string>
+</resources>
