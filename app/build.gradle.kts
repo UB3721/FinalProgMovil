@@ -87,4 +87,7 @@ dependencies {
 
     // kotlin-datetime
     implementation(libs.kotlinx.datetime)
+
+    // chart
+    implementation(libs.mpandroidchart)
 }
