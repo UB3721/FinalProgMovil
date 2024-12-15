@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.df.base.network.MangasApi
 import com.df.base.model.mangadex.Manga
+import com.df.base.ui.SelectedManga
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SearchViewModel : ViewModel() {
@@ -13,17 +16,35 @@ class SearchViewModel : ViewModel() {
     var mangaUiState by mutableStateOf<MangaUiState>(MangaUiState.Loading)
         private set
 
-    var isFullText by mutableStateOf(false)
-        private set
-
-    var query by mutableStateOf("")
-        private set
-
-    var coverUrl by mutableStateOf<String?>(null)
-        private set
+    private val _searchUiState = MutableStateFlow(SearchUiState())
+    val searchUiState: StateFlow<SearchUiState> = _searchUiState
 
     fun updateQuery(newQuery: String) {
-        query = newQuery
+        _searchUiState.value = _searchUiState.value.copy(query = newQuery)
+    }
+
+    fun updateTitle(newTitle: String) {
+        _searchUiState.value = _searchUiState.value.copy(
+            selectedManga = _searchUiState.value.selectedManga.copy(
+                title = newTitle
+            )
+        )
+    }
+
+    fun updateId(newId: String) {
+        _searchUiState.value = _searchUiState.value.copy(
+            selectedManga = _searchUiState.value.selectedManga.copy(
+                id = newId
+            )
+        )
+    }
+
+    fun updateDesc(newDesc: String) {
+        _searchUiState.value = _searchUiState.value.copy(
+            selectedManga = _searchUiState.value.selectedManga.copy(
+                synopsis = newDesc
+            )
+        )
     }
 
     fun fetchManga(query: String) {
@@ -40,19 +61,29 @@ class SearchViewModel : ViewModel() {
         }
     }
 
-    fun displayFullText(fullText: Boolean) {
-        isFullText = fullText
-    }
-
     fun fetchImg(manga: Manga) {
         val relationships = manga.relationships
         val coverArtRelationship = relationships.find { it.type == "cover_art" }
         val coverAttributes = coverArtRelationship?.attributes
-        coverUrl = coverAttributes?.fileName?.let { filename ->
-            "https://uploads.mangadex.org/covers/${manga.id}/$filename"
-        }
+        _searchUiState.value = _searchUiState.value.copy(
+            selectedManga = _searchUiState.value.selectedManga.copy(
+                coverUrl = coverAttributes?.fileName?.let {
+                        filename -> "https://uploads.mangadex.org/covers/${manga.id}/$filename"
+                }?: ""
+            )
+        )
     }
 }
+
+data class SearchUiState(
+    val selectedManga: SelectedManga = SelectedManga(
+        id = "",
+        title = "",
+        synopsis = "",
+        coverUrl = ""
+    ),
+    val query: String = ""
+)
 
 sealed interface MangaUiState {
     object Loading : MangaUiState

@@ -12,6 +12,7 @@
     <string name="description_search">Search Manga</string>
     <string name="no_results_found">No results found</string>
     <string name="dialog_add_manga">Do you want to add this media?</string>
+    <string name="dialog_edit_manga">Do you want to edit this media?</string>
     <string name="waiting_for_search">Search a manga</string>
     <string name="label_links">Links</string>
     <string name="site_link">"Site Link"</string>

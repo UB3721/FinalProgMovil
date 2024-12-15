@@ -36,4 +36,6 @@ interface MangasRepository {
     suspend fun saveCollection(mangaId: Int, collectionId: Int, collectionName: String): Response<SuccessResponse>
 
     suspend fun updateCollectionName(mangaId: Int, collectionId: Int, collectionName: String): Response<SuccessResponse>
+
+    suspend fun updateSharedLinkState(senderId: Int, recipientId: Int, mangaId: Int): Response<SuccessResponse>
 }

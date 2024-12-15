@@ -1,21 +1,19 @@
 package com.df.base.ui.search
 
 import MangaUiState
+import SearchUiState
 import SearchViewModel
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 //import androidx.compose.foundation.layout.calculateEndPadding
 //import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,19 +24,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,10 +53,11 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.df.base.BottomNavigationBar
 import com.df.base.R
-import com.df.base.ui.SelectedManga
 import com.df.base.ui.add.AddDestination
 import com.df.base.ui.navigation.NavigationDestination
 import com.df.base.model.mangadex.Manga
+import com.df.base.ui.CommonDialog
+import com.df.base.ui.MangaAction
 
 object SearchDestination: NavigationDestination {
     override  val route = "search"
@@ -72,6 +70,8 @@ fun MangaScreen(
     navController: NavController,
     mangaViewModel: SearchViewModel = viewModel()
 ) {
+    val searchUiState by mangaViewModel.searchUiState.collectAsState()
+
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
@@ -81,6 +81,7 @@ fun MangaScreen(
     ) { innerPadding ->
         SearchBody(
             mangaViewModel.mangaUiState,
+            searchUiState,
             mangaViewModel,
             navController,
             modifier = Modifier
@@ -97,12 +98,16 @@ fun MangaScreen(
 @Composable
 fun SearchBody(
     uiState: MangaUiState,
+    searchUiState: SearchUiState,
     mangaViewModel: SearchViewModel,
     navController: NavController,
     modifier: Modifier
 ) {
     Column(modifier = Modifier) {
-        SearchBar(mangaViewModel)
+        SearchBar(
+            mangaViewModel = mangaViewModel,
+            searchUiState = searchUiState
+        )
         when (uiState) {
             is MangaUiState.Loading -> {
                 Box(
@@ -131,7 +136,8 @@ fun SearchBody(
                         items(items = mangas, key = {it.id}) { manga ->
                             MangaItem(
                                 manga = manga,
-                                viewModel = mangaViewModel,
+                                searchUiState = searchUiState,
+                                searchViewModel = mangaViewModel,
                                 navController = navController
                             )
                         }
@@ -157,42 +163,11 @@ fun SearchBody(
 @Composable
 fun MangaItem(
     manga: Manga,
-    viewModel: SearchViewModel,
+    searchUiState: SearchUiState,
+    searchViewModel: SearchViewModel,
     navController: NavController
 ) {
-    val title = manga.attributes.title?.get("en") ?: stringResource(R.string.no_title)
-    val description = manga.attributes.description?.get("en") ?: stringResource(R.string.no_description)
-    viewModel.fetchImg(manga)
-    val coverUrl = viewModel.coverUrl ?: ""
-
-    var showDialog by remember { mutableStateOf(false) }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text(text = stringResource(R.string.dialog_add_manga)) },
-            text = { Text(text = title) },
-            confirmButton = {
-                TextButton(onClick = {
-                    val selectedManga = SelectedManga(
-                        id = manga.id,
-                        title = title,
-                        synopsis = description,
-                        coverUrl = coverUrl
-                    )
-                    navController.navigate(AddDestination.routeWithArgs(selectedManga))
-                    showDialog = false
-                }) {
-                    Text("Yes")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
+    var showDialog by rememberSaveable() { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -210,14 +185,14 @@ fun MangaItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = viewModel.coverUrl,
+                model = manga.relationships.find { it.type == "cover_art" }?.attributes?.fileName?.let {
+                    "https://uploads.mangadex.org/covers/${manga.id}/$it"
+                },
                 contentDescription = stringResource(R.string.cover),
                 modifier = Modifier
                     .size(100.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .padding(8.dp)
-                //error = painterResource(id = R.drawable.placeholder_image),
-                //fallback = painterResource(id = R.drawable.placeholder_image)
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -229,7 +204,7 @@ fun MangaItem(
                     .padding(8.dp)
             ) {
                 Text(
-                    text = title,
+                    text = manga.attributes.title?.get("en") ?: stringResource(R.string.no_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
@@ -238,16 +213,32 @@ fun MangaItem(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                var isExpanded by remember { mutableStateOf(false) }
                 Text(
-                    text = description,
+                    text = manga.attributes.description?.get("en") ?: stringResource(R.string.no_description),
                     fontSize = 14.sp,
-                    maxLines = if (isExpanded) Int.MAX_VALUE else 3,
-                    overflow = if (isExpanded) TextOverflow.Clip else TextOverflow.Ellipsis,
-                    modifier = Modifier.clickable { isExpanded = !isExpanded }
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
+    }
+
+    if (showDialog) {
+        searchUiState.selectedManga
+        searchViewModel.updateId(manga.id)
+        searchViewModel.updateTitle(manga.attributes.title?.get("en") ?: stringResource(R.string.no_title))
+        searchViewModel.updateDesc(manga.attributes.description?.get("en") ?: stringResource(R.string.no_description))
+        searchViewModel.fetchImg(manga)
+
+        CommonDialog(
+            title = stringResource(R.string.dialog_add_manga),
+            mangaAction = MangaAction.Add(
+                searchUiState.selectedManga
+            ),
+            showDialog = showDialog,
+            onShowDialogChanged = { showDialog = false },
+            navigateToAdd = { navController.navigate(AddDestination.routeWithArgs(searchUiState.selectedManga)) }
+        )
     }
 }
 
@@ -255,9 +246,11 @@ fun MangaItem(
 
 
 
+
 @Composable
 fun SearchBar(
-    mangaViewModel: SearchViewModel
+    mangaViewModel: SearchViewModel,
+    searchUiState: SearchUiState
 ) {
     Row(
         modifier = Modifier
@@ -266,7 +259,7 @@ fun SearchBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
-            value = mangaViewModel.query,
+            value = searchUiState.query,
             onValueChange = { mangaViewModel.updateQuery(it) },
             label = { Text( stringResource(R.string.description_search)) },
             shape = RoundedCornerShape(16.dp),
@@ -283,7 +276,7 @@ fun SearchBar(
             textStyle = TextStyle(color = MaterialTheme.colorScheme.onPrimaryContainer)
         )
         Button(
-            onClick = { mangaViewModel.fetchManga(mangaViewModel.query) },
+            onClick = { mangaViewModel.fetchManga(searchUiState.query) },
             modifier = Modifier
                 .padding(2.dp)
                 .height(IntrinsicSize.Min)

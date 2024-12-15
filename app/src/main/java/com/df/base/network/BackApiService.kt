@@ -72,6 +72,13 @@ interface BackApiService {
         @Query("userId") userId: Int
     ): List<SharedLink>
 
+    @PUT("sharedLink")
+    suspend fun updateSharedLinkState(
+        @Query("senderId") senderId: Int,
+        @Query("recipientId") recipientId: Int,
+        @Query("mangaId") mangaId: Int,
+    ): Response<SuccessResponse>
+
     @POST("mangaCollection")
     suspend fun saveMangaCollection(
         @Query("mangaId") MangaId: Int,

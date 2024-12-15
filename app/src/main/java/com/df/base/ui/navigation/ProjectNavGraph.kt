@@ -74,7 +74,12 @@ fun ProjectNavHost(
         }
 
         composable(route = ProfileDestination.route) {
-            ProfileScreen(navController = navController)
+            ProfileScreen(
+                navController = navController,
+                navigateToEdit = { userManga ->
+                    navController.navigate(EditDestination.routeWithArgs(userManga))
+                }
+            )
         }
 
         composable(

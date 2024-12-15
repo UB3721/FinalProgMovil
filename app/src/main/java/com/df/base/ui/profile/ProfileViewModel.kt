@@ -43,15 +43,18 @@ class ProfileViewModel(private val mangasRepository: MangasRepository): ViewMode
     fun setUserMangaReadingStatus(
         readingStatus: String,
         userManga: UserManga
-    ): List<UserManga> {
-        return _profileUiState.value.userMangaList.map { manga ->
-            if (manga.mangaId == userManga.mangaId) {
-                manga.copy(readingStatus = readingStatus)
-            } else {
-                manga
+    ) {
+        _profileUiState.value = _profileUiState.value.copy(
+            userMangaList = _profileUiState.value.userMangaList.map { manga ->
+                if (manga.mangaId == userManga.mangaId) {
+                    manga.copy(readingStatus = readingStatus)
+                } else {
+                    manga
+                }
             }
-        }
+        )
     }
+
 
 
     fun fetchSharedLinkList() {

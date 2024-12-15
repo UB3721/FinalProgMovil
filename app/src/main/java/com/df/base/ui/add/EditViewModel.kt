@@ -60,6 +60,7 @@ class EditViewModel(private val mangasRepository: MangasRepository): ViewModel()
     fun initializeState(
         userManga: UserManga
     ) {
+        Log.d("tag", userManga.toString())
         _uiState.value = _uiState.value.copy(mangaDetails = userManga.toMangaDetails())
     }
 

@@ -2,12 +2,13 @@ package com.df.base.ui.profile
 
 import android.util.Log
 import android.view.ViewGroup
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -16,6 +17,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -29,23 +33,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.df.base.BottomNavigationBar
 import com.df.base.R
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
-import com.df.base.ui.UiListBody
+import com.df.base.ui.CommonDialog
+import com.df.base.ui.MangaAction
+import com.df.base.ui.add.AddDestination
+import com.df.base.ui.add.MangaDetails
+import com.df.base.ui.add.toMangaDetails
 import com.df.base.ui.navigation.NavigationDestination
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
@@ -63,6 +78,7 @@ object ProfileDestination: NavigationDestination {
 @Composable
 fun ProfileScreen(
     navController: NavController,
+    navigateToEdit: (UserManga) -> Unit,
     profileViewModel: ProfileViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val profileUiState by profileViewModel.profileUiState.collectAsState()
@@ -90,7 +106,7 @@ fun ProfileScreen(
             username = profileUiState.user.userName + "#" + profileUiState.user.userId,
             sharedLinkList = profileUiState.userSharedLinkList,
             userMangaList = profileUiState.userMangaList,
-            navController = navController,
+            navigateToEdit = navigateToEdit,
             setUserMangaStatus = { status, manga ->
                 profileViewModel.setUserMangaReadingStatus(status, manga)
             }
@@ -103,9 +119,9 @@ fun ProfileBody(
     username: String,
     userStats: UserStats,
     userMangaList: List<UserManga>,
-    navController: NavController,
     setUserMangaStatus: (String, UserManga) -> Unit = { _, _ -> },
     sharedLinkList: List<SharedLink>,
+    navigateToEdit: (UserManga) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -136,9 +152,9 @@ fun ProfileBody(
 
         InboxProfile(
             userMangaList = userMangaList,
-            navController = navController,
             setUserMangaStatus = setUserMangaStatus,
             deleteLink = {},
+            navigateToEdit = navigateToEdit,
             sharedLinkList = sharedLinkList
         )
 
@@ -224,15 +240,14 @@ fun InboxProfile(
     modifier: Modifier = Modifier,
     userMangaList: List<UserManga>,
     sharedLinkList: List<SharedLink>,
-    navController: NavController,
+    navigateToEdit: (UserManga) -> Unit,
     setUserMangaStatus: (String, UserManga) -> Unit = { _, _ -> },
-    deleteLink: () -> Unit
+    deleteLink: (UserManga) -> Unit
 ) {
     Column(
         modifier = modifier
             .padding(8.dp)
             .fillMaxSize()
-            .padding(8.dp)
             .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -243,23 +258,119 @@ fun InboxProfile(
             modifier = Modifier.padding(8.dp)
         )
 
-        // Log.d("test", userMangaList.toString())
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(sharedLinkList.zip(userMangaList)) { (sharedLink, userManga) ->
+                UserMangaItem(
+                    sender = "${sharedLink.sender.userName}#${sharedLink.sender.userId}",
+                    userManga = userManga,
+                    onDelete = { deleteLink(userManga) },
+                    setUserMangaStatus = setUserMangaStatus,
+                    navigateToEdit = navigateToEdit
+                )
+            }
+        }
+    }
+}
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun UserMangaItem(
+    sender: String,
+    userManga: UserManga,
+    setUserMangaStatus: (String, UserManga) -> Unit,
+    navigateToEdit: (UserManga) -> Unit,
+    onDelete: () -> Unit
+) {
+    var expanded by rememberSaveable() { mutableStateOf(false) }
+    var showDialog by rememberSaveable() { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
+            .combinedClickable(
+                onClick = {},
+                onLongClick = {showDialog = true}
+            )
+    ) {
+        Text(
+            text = "From: $sender",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(8.dp)
+        )
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.End
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { deleteLink() }) {
+            AsyncImage(
+                model = userManga.coverUrl,
+                contentDescription = "Cover image for ${userManga.userTitle}",
+                modifier = Modifier
+                    .size(80.dp)
+                    .padding(4.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            ) {
+                Text(
+                    text = userManga.userTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                (if (expanded) userManga.synopsis else (userManga.synopsis?.take(100) ?: "") + "...")?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = if (expanded) Int.MAX_VALUE else 3,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .clickable { expanded = !expanded }
+                    )
+                }
+            }
+
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier
+                    .padding(8.dp)
+            ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete link",
+                    contentDescription = "Delete UserManga",
                     tint = MaterialTheme.colorScheme.error
                 )
             }
         }
+    }
+
+    if (showDialog) {
+        setUserMangaStatus(stringResource(R.string.reading), userManga)
+        CommonDialog(
+            title = stringResource(R.string.dialog_edit_manga),
+            mangaAction = MangaAction.Edit(
+                userManga.toMangaDetails()
+            ),
+            showDialog = showDialog,
+            onShowDialogChanged = { showDialog = false },
+            navigateToEdit = { navigateToEdit(userManga) }
+        )
     }
 }
 
