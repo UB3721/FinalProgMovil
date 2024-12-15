@@ -45,6 +45,6 @@ class OfflineMangasRepository(
 
     override suspend fun updateCollectionName(mangaId: Int, collectionId: Int, collectionName: String): Response<SuccessResponse> = apiService.updateCollectionName(mangaId, collectionId, collectionName)
 
-    override suspend fun updateSharedLinkState(senderId: Int, recipientId: Int, mangaId: Int): Response<SuccessResponse> = apiService.updateSharedLinkState(senderId, recipientId, mangaId)
+    override suspend fun updateSharedLinkState(sharedLink: SharedLink): Response<SuccessResponse> = apiService.updateSharedLinkState(sharedLink)
 
 }

@@ -9,6 +9,7 @@ import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.model.back.UserStatistics
 import com.df.base.data.MangasRepository
+import com.df.base.ui.add.toUserManga
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,7 +56,25 @@ class ProfileViewModel(private val mangasRepository: MangasRepository): ViewMode
         )
     }
 
-
+    fun removeSharedLink(sharedLink: SharedLink) {
+        viewModelScope.launch {
+            try {
+                val response = mangasRepository.updateSharedLinkState(
+                    sharedLink
+                )
+                if (response.isSuccessful) {
+                    val successMessage = response.body()?.message
+                    Log.d("updateSharedLink", "Success: $successMessage")
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.d("updateSharedLink", "Error: $errorBody")
+                }
+                fetchSharedLinkList()
+            } catch (e: Exception) {
+                Log.d("updateSharedLink", "Exception: ${e.message}")
+            }
+        }
+    }
 
     fun fetchSharedLinkList() {
         viewModelScope.launch {
@@ -70,8 +89,6 @@ class ProfileViewModel(private val mangasRepository: MangasRepository): ViewMode
                         userMangaList =
                             convertSharedLinksToUserManga(_profileUiState.value.userSharedLinkList)
                     )
-                Log.d("test1", _profileUiState.value.userSharedLinkList.toString())
-                Log.d("test2", convertSharedLinksToUserManga(_profileUiState.value.userSharedLinkList).toString())
             } catch (e: Exception) {
                 println("Error fetching user shared link list: ${e.message}")
             }

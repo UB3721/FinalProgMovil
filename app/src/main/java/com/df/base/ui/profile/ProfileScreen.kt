@@ -107,6 +107,9 @@ fun ProfileScreen(
             sharedLinkList = profileUiState.userSharedLinkList,
             userMangaList = profileUiState.userMangaList,
             navigateToEdit = navigateToEdit,
+            deleteLink = { sharedLink ->
+                profileViewModel.removeSharedLink(sharedLink)
+                         },
             setUserMangaStatus = { status, manga ->
                 profileViewModel.setUserMangaReadingStatus(status, manga)
             }
@@ -122,6 +125,7 @@ fun ProfileBody(
     setUserMangaStatus: (String, UserManga) -> Unit = { _, _ -> },
     sharedLinkList: List<SharedLink>,
     navigateToEdit: (UserManga) -> Unit,
+    deleteLink: (SharedLink) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -153,7 +157,7 @@ fun ProfileBody(
         InboxProfile(
             userMangaList = userMangaList,
             setUserMangaStatus = setUserMangaStatus,
-            deleteLink = {},
+            deleteLink = deleteLink,
             navigateToEdit = navigateToEdit,
             sharedLinkList = sharedLinkList
         )
@@ -242,7 +246,7 @@ fun InboxProfile(
     sharedLinkList: List<SharedLink>,
     navigateToEdit: (UserManga) -> Unit,
     setUserMangaStatus: (String, UserManga) -> Unit = { _, _ -> },
-    deleteLink: (UserManga) -> Unit
+    deleteLink: (SharedLink) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -268,7 +272,8 @@ fun InboxProfile(
                 UserMangaItem(
                     sender = "${sharedLink.sender.userName}#${sharedLink.sender.userId}",
                     userManga = userManga,
-                    onDelete = { deleteLink(userManga) },
+                    sharedLink = sharedLink,
+                    onDelete = deleteLink,
                     setUserMangaStatus = setUserMangaStatus,
                     navigateToEdit = navigateToEdit
                 )
@@ -281,10 +286,11 @@ fun InboxProfile(
 @Composable
 fun UserMangaItem(
     sender: String,
+    sharedLink: SharedLink,
     userManga: UserManga,
     setUserMangaStatus: (String, UserManga) -> Unit,
     navigateToEdit: (UserManga) -> Unit,
-    onDelete: () -> Unit
+    onDelete: (SharedLink) -> Unit
 ) {
     var expanded by rememberSaveable() { mutableStateOf(false) }
     var showDialog by rememberSaveable() { mutableStateOf(false) }
@@ -296,7 +302,7 @@ fun UserMangaItem(
             .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
             .combinedClickable(
                 onClick = {},
-                onLongClick = {showDialog = true}
+                onLongClick = { showDialog = true }
             )
     ) {
         Text(
@@ -347,7 +353,9 @@ fun UserMangaItem(
             }
 
             IconButton(
-                onClick = onDelete,
+                onClick = {
+                    onDelete(sharedLink)
+                          },
                 modifier = Modifier
                     .padding(8.dp)
             ) {

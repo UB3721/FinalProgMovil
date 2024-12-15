@@ -74,9 +74,7 @@ interface BackApiService {
 
     @PUT("sharedLink")
     suspend fun updateSharedLinkState(
-        @Query("senderId") senderId: Int,
-        @Query("recipientId") recipientId: Int,
-        @Query("mangaId") mangaId: Int,
+        @Body request: SharedLink
     ): Response<SuccessResponse>
 
     @POST("mangaCollection")
