@@ -1,13 +1,14 @@
 package com.df.base.ui.profile
 
+
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.df.base.data.MangasRepository
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.model.back.UserStatistics
+import com.df.base.data.MangasRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +21,7 @@ class ProfileViewModel(private val mangasRepository: MangasRepository): ViewMode
     private fun convertSharedLinksToUserManga(sharedLinks: List<SharedLink>): List<UserManga> {
         return sharedLinks.map { sharedLink ->
             UserManga(
-                userId = sharedLink.senderId,
+                userId = sharedLink.recipient.userId,
                 mangaId = sharedLink.manga.mangaId,
                 link = sharedLink.link_,
                 altLink = sharedLink.altLink,

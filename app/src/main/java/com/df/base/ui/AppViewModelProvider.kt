@@ -12,6 +12,7 @@ import com.df.base.ui.add.EditViewModel
 import com.df.base.ui.collection.CollectionViewModel
 import com.df.base.ui.favorites.FavoritesViewModel
 import com.df.base.ui.list.ListViewModel
+import com.df.base.ui.profile.ProfileViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -42,6 +43,11 @@ object AppViewModelProvider {
         }
         initializer {
             FavoritesViewModel(
+                projectApp().container.mangasRepository
+            )
+        }
+        initializer {
+            ProfileViewModel(
                 projectApp().container.mangasRepository
             )
         }

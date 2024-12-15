@@ -1,3 +1,5 @@
+package com.df.base.data
+
 import com.df.base.model.back.Collection
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
@@ -5,6 +7,7 @@ import com.df.base.model.back.UserManga
 import com.df.base.model.back.UserStatistics
 import com.df.base.network.SuccessResponse
 import retrofit2.Response
+
 interface MangasRepository {
     suspend fun saveUserManga(userManga: UserManga): Response<SuccessResponse>
 

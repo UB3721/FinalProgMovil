@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
@@ -82,10 +83,12 @@ fun ProfileScreen(
             modifier = Modifier
                 .padding(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-                    end = innerPadding.calculateEndPadding(LocalLayoutDirection.current)
+                    end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+                    bottom = innerPadding.calculateBottomPadding()
                 ),
             userStats = profileUiState.userStats,
             username = profileUiState.user.userName + "#" + profileUiState.user.userId,
+            sharedLinkList = profileUiState.userSharedLinkList,
             userMangaList = profileUiState.userMangaList,
             navController = navController,
             setUserMangaStatus = { status, manga ->
@@ -102,6 +105,7 @@ fun ProfileBody(
     userMangaList: List<UserManga>,
     navController: NavController,
     setUserMangaStatus: (String, UserManga) -> Unit = { _, _ -> },
+    sharedLinkList: List<SharedLink>,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -114,7 +118,7 @@ fun ProfileBody(
             text = username,
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary,
-            modifier = modifier.padding(vertical = 30.dp)
+            modifier = Modifier.padding(vertical = 30.dp)
         )
 
         if (userStats.onHold != 0 && userStats.dropped != 0 && userStats.reading != 0 && userStats.completed != 0) {
@@ -134,7 +138,8 @@ fun ProfileBody(
             userMangaList = userMangaList,
             navController = navController,
             setUserMangaStatus = setUserMangaStatus,
-            deleteLink = {}
+            deleteLink = {},
+            sharedLinkList = sharedLinkList
         )
 
     }
@@ -218,32 +223,28 @@ fun StatisticalPie(
 fun InboxProfile(
     modifier: Modifier = Modifier,
     userMangaList: List<UserManga>,
+    sharedLinkList: List<SharedLink>,
     navController: NavController,
     setUserMangaStatus: (String, UserManga) -> Unit = { _, _ -> },
     deleteLink: () -> Unit
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxSize()
+            .padding(8.dp)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp)),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Text(
             text = "Inbox",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .padding(start = 32.dp, bottom = 16.dp, top = 16.dp)
+            modifier = Modifier.padding(8.dp)
         )
 
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            Log.d("test", userMangaList.toString())
-//            UiListBody(
-//                mangaList = userMangaList,
-//                contentPadding = PaddingValues(16.dp),
-//                navController = navController,
-//                setUserMangaStatus = setUserMangaStatus
-//            )
-        }
+        // Log.d("test", userMangaList.toString())
+
 
         Row(
             modifier = Modifier

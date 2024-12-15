@@ -16,7 +16,7 @@ private val retrofit = Retrofit.Builder()
     .baseUrl(BASE_URL)
     .build()
 
-interface MangadexApiService {
+interface MangasApiService {
     @GET("/manga")
     suspend fun getMangas(
         @Query("title") title: String,
@@ -24,8 +24,8 @@ interface MangadexApiService {
     ): MangaList
 }
 
-//object MangasApi {
-//   val retrofitService: MangasApiService by lazy {
-//        retrofit.create(MangasApiService::class.java)
-//    }
-//}
+object MangasApi {
+   val retrofitService: MangasApiService by lazy {
+        retrofit.create(MangasApiService::class.java)
+    }
+}

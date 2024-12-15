@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
+import com.df.base.model.back.MangaBack
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +41,8 @@ class DisplayViewModel(private val mangasRepository: MangasRepository): ViewMode
                 ),
                 link = userManga.link,
                 altLink = userManga.altLink,
-                recipientId = user.userId
+                sender = User(userManga.userId, ""),
+                recipient = User(userId = user.userId, userName = user.userName)
             )
         )
     }
@@ -91,8 +93,8 @@ data class DisplayUser(
 
 data class DisplaySharedLink(
     val sharedLinkId: Int = 0,
-    val senderId: Int = 1,
-    val recipientId: Int = 0,
+    val sender: User = User(1, ""),
+    val recipient: User = User(0, ""),
     val manga: MangaBack = MangaBack(
         mangaId =  0,
         mangadexId = "",
@@ -110,10 +112,10 @@ data class DisplaySharedLink(
 //    userName = userName
 //)
 //
-//fun DisplayUser.toUser(): User = User(
-//    userId = userId,
-//    userName = userName
-//)
+fun DisplayUser.toUser(): User = User(
+    userId = userId,
+    userName = userName
+)
 //
 //fun SharedLink.toDisplaySharedLink(): DisplaySharedLink = DisplaySharedLink(
 //    sharedLinkId = sharedLinkId,
@@ -127,10 +129,9 @@ data class DisplaySharedLink(
 
 fun DisplaySharedLink.toSharedLink(): SharedLink = SharedLink(
     sharedLinkId = sharedLinkId,
-    senderId = senderId,
-    recipientId = recipientId,
-    title = title,
-    coverUrl = coverUrl,
+    sender = sender,
+    recipient = recipient,
+    manga = manga,
     link_ = link,
     altLink = altLink
 )
