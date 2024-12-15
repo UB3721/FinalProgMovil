@@ -3,12 +3,12 @@ package com.df.base.model.back
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SharedLink(
+data class SharedLink (
     val sharedLinkId: Int,
     val senderId: Int,
     val recipientId: Int,
-    val title: String,
-    val coverUrl: String,
+    @Serializable
+    val manga: MangaBack,
     val link_: String,
     val altLink: String
 )
