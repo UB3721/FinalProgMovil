@@ -24,18 +24,24 @@ class DisplayViewModel(private val mangasRepository: MangasRepository): ViewMode
     fun updateSelectedUser(user: User, userManga: MangaDetails) {
         _displayUiState.value = _displayUiState.value.copy(
             selectedUser =
-                _displayUiState.value.selectedUser.copy(
-                    userId = user.userId,
-                    userName = user.userName
-                ),
+            _displayUiState.value.selectedUser.copy(
+                userId = user.userId,
+                userName = user.userName
+            ),
             sharedLink =
-                _displayUiState.value.sharedLink.copy(
+            _displayUiState.value.sharedLink.copy(
+                manga = MangaBack(
+                    mangaId = userManga.mangaId ?: 0,
+                    mangadexId = userManga.mangadexId,
                     title = userManga.userTitle,
                     coverUrl = userManga.coverUrl ?: "",
-                    link = userManga.link,
-                    altLink = userManga.altLink,
-                    recipientId = user.userId
-                )
+                    publicationDate = userManga.publicationDate,
+                    synopsis = userManga.synopsis ?: ""
+                ),
+                link = userManga.link,
+                altLink = userManga.altLink,
+                recipientId = user.userId
+            )
         )
     }
 
@@ -87,8 +93,14 @@ data class DisplaySharedLink(
     val sharedLinkId: Int = 0,
     val senderId: Int = 1,
     val recipientId: Int = 0,
-    val title: String = "",
-    val coverUrl: String = "",
+    val manga: MangaBack = MangaBack(
+        mangaId =  0,
+        mangadexId = "",
+        title = "",
+        coverUrl = "",
+        publicationDate = null,
+        synopsis = ""
+    ),
     val link: String = "",
     val altLink: String = ""
 )
