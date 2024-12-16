@@ -1,6 +1,7 @@
 package com.df.base.data
 
 import com.df.base.model.back.Collection
+import com.df.base.model.back.MangaCollection
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
@@ -27,15 +28,17 @@ interface MangasRepository {
 
     suspend fun getUserStatistics(id: Int): UserStatistics
 
-    suspend fun saveMangaCollection(mangaId: Int, userId: Int, collectionId: Int): Response<SuccessResponse>
+    suspend fun saveMangaCollection(mangaCollection: MangaCollection): Response<SuccessResponse>
 
-    suspend fun deleteMangaCollection(mangaId: Int, userId: Int, collectionId: Int): Response<SuccessResponse>
+    suspend fun deleteMangaCollection(mangaCollection: MangaCollection): Response<SuccessResponse>
+
+    suspend fun getMangaCollection(mangaId: Int, userId: Int, collectionId: Int): Response<SuccessResponse>
 
     suspend fun getAllCollection(id: Int): List<Collection>
 
-    suspend fun saveCollection(mangaId: Int, collectionId: Int, collectionName: String): Response<SuccessResponse>
+    suspend fun saveCollection(collection: Collection): Response<SuccessResponse>
 
-    suspend fun updateCollectionName(mangaId: Int, collectionId: Int, collectionName: String): Response<SuccessResponse>
+    suspend fun updateCollectionName(collection: Collection): Response<SuccessResponse>
 
     suspend fun updateSharedLinkState(sharedLink: SharedLink): Response<SuccessResponse>
 }

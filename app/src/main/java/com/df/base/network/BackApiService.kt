@@ -1,6 +1,7 @@
 package com.df.base.network
 
 import com.df.base.model.back.Collection
+import com.df.base.model.back.MangaCollection
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
@@ -79,14 +80,17 @@ interface BackApiService {
 
     @POST("mangaCollection")
     suspend fun saveMangaCollection(
-        @Query("mangaId") MangaId: Int,
-        @Query("userId") userId: Int,
-        @Query("collectionId") collectionId: Int
+        @Body request: MangaCollection
     ): Response<SuccessResponse>
 
     @DELETE("mangaCollection")
     suspend fun deleteMangaCollection(
-        @Query("mangaId") MangaId: Int,
+        @Body request: MangaCollection
+    ): Response<SuccessResponse>
+
+    @GET("mangaCollection")
+    suspend fun getMangaCollection(
+        @Query("mangaId") mangaId: Int,
         @Query("userId") userId: Int,
         @Query("collectionId") collectionId: Int
     ): Response<SuccessResponse>
@@ -98,16 +102,12 @@ interface BackApiService {
 
     @POST("collection")
     suspend fun saveCollection(
-        @Query("userId") userId: Int,
-        @Query("collectionId") collectionId: Int,
-        @Query("collectionName") collectionName: String
+        @Body request: Collection
     ): Response<SuccessResponse>
 
     @PUT("collection")
     suspend fun updateCollectionName(
-        @Query("userId") userId: Int,
-        @Query("collectionId") collectionId: Int,
-        @Query("collectionName") collectionName: String
+        @Body request: Collection
     ): Response<SuccessResponse>
 }
 
