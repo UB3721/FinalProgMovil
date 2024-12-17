@@ -47,10 +47,16 @@ class DisplayViewModel(private val mangasRepository: MangasRepository): ViewMode
         )
     }
 
+    fun setUser(user: User) {
+        _displayUiState.value = _displayUiState.value.copy(
+            userId = user.userId
+        )
+    }
+
     fun fetchAllUsers() {
         viewModelScope.launch {
             try {
-                val userList = mangasRepository.getAllUsers(1)
+                val userList = mangasRepository.getAllUsers(_displayUiState.value.userId)
                 _displayUiState.value = _displayUiState.value.copy(userList = userList)
             } catch (e: Exception) {
                 _displayUiState.value = _displayUiState.value.copy(userList = listOf())
@@ -80,6 +86,7 @@ class DisplayViewModel(private val mangasRepository: MangasRepository): ViewMode
 }
 
 data class DisplayUiState(
+    val userId: Int = 0,
     val isDescExpanded: Boolean = false,
     val selectedUser: DisplayUser = DisplayUser(),
     val sharedLink: DisplaySharedLink = DisplaySharedLink(),

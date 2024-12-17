@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
+import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,11 +33,19 @@ class ListViewModel(private val mangasRepository: MangasRepository): ViewModel()
         }
     }
 
+    fun setUser(user: User) {
+        _listUiState.value = _listUiState.value.copy(
+            userId = user.userId
+        )
+    }
+
     fun fetchUserMangaList() {
         viewModelScope.launch {
             try {
-                val userMangaList = mangasRepository.getUserMangaStream(1)
-                _listUiState.value = ListUiState(userMangaList)
+                val userMangaList = mangasRepository.getUserMangaStream(_listUiState.value.userId)
+                _listUiState.value = _listUiState.value.copy(
+                    userMangaList = userMangaList
+                )
             } catch (e: Exception) {
                 _listUiState.value = ListUiState()
                 println("Error fetching user manga list: ${e.message}")
@@ -46,5 +55,6 @@ class ListViewModel(private val mangasRepository: MangasRepository): ViewModel()
 }
 
 data class ListUiState(
+    val userId: Int = 0,
     val userMangaList: List<UserManga> = listOf()
 )

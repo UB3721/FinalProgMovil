@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 
 import com.df.base.data.MangasRepository
 import com.df.base.model.back.MangaCollection
+import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,11 +43,17 @@ class CollectionMangaViewModel(
 
     suspend fun fetchUserMangaById(mangaId: Int): UserManga? {
         return try {
-            mangasRepository.getUserMangaById(userId = 1, mangaId = mangaId)
+            mangasRepository.getUserMangaById(userId = _collectionMangaUiState.value.userId , mangaId = mangaId)
         } catch (e: Exception) {
             println("Error fetching user manga by id: ${e.message}")
             null
         }
+    }
+
+    fun setUser(user: User) {
+        _collectionMangaUiState.value = _collectionMangaUiState.value.copy(
+            userId = user.userId
+        )
     }
 
     fun fetchAllMangaCollection() {
@@ -67,5 +74,6 @@ class CollectionMangaViewModel(
 }
 
 data class CollectionMangaUiState(
+    val userId: Int = 0,
     val mangaCollectionList: List<MangaCollection> = listOf()
 )

@@ -76,10 +76,16 @@ class ProfileViewModel(private val mangasRepository: MangasRepository): ViewMode
         }
     }
 
+    fun setUser(user: User) {
+        _profileUiState.value = _profileUiState.value.copy(
+            user = user.toUserDetails()
+        )
+    }
+
     fun fetchSharedLinkList() {
         viewModelScope.launch {
             try {
-                val sharedLinkList = mangasRepository.getAllSharedLink(4)
+                val sharedLinkList = mangasRepository.getAllSharedLink(_profileUiState.value.user.userId)
                 _profileUiState.value = _profileUiState.value
                     .copy(
                         userSharedLinkList = sharedLinkList
@@ -95,28 +101,10 @@ class ProfileViewModel(private val mangasRepository: MangasRepository): ViewMode
         }
     }
 
-    fun fetchUserData() {
-        viewModelScope.launch {
-            try {
-                val user = mangasRepository.getUserData(1)
-                _profileUiState.value = _profileUiState.value.copy(
-                    user = _profileUiState.value.user.copy(
-                        userName = user.userName,
-                        userId = user.userId
-                    )
-                )
-                Log.d("test", _profileUiState.value.user.userName)
-            } catch (e: Exception) {
-                println("Error fetching user data: ${e.message}")
-            }
-        }
-    }
-
-
     fun fetchUserStatistics() {
         viewModelScope.launch {
             try {
-                val userStats = mangasRepository.getUserStatistics(1)
+                val userStats = mangasRepository.getUserStatistics(_profileUiState.value.user.userId)
                 _profileUiState.value = _profileUiState.value.copy(userStats = userStats.toUserStats())
             } catch (e: Exception) {
                 println("Error fetching user statistics: ${e.message}")

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
 import com.df.base.model.back.Collection
+import com.df.base.model.back.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -57,6 +58,12 @@ class CollectionViewModel(private val mangasRepository: MangasRepository) : View
         }
     }
 
+    fun setUser(user: User) {
+        _collectionUiState.value = _collectionUiState.value.copy(
+            userId = user.userId
+        )
+    }
+
     fun fetchAllCollections() {
         viewModelScope.launch {
             try {
@@ -72,6 +79,7 @@ class CollectionViewModel(private val mangasRepository: MangasRepository) : View
 }
 
 data class CollectionUiState(
+    val userId: Int = 0,
     val editNewName: String = "",
     val newCollection: Collection = Collection(
         collectionId = 0,

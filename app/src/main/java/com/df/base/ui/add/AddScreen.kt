@@ -27,8 +27,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.df.base.BottomNavigationBar
 import com.df.base.R
+import com.df.base.model.back.User
 import com.df.base.ui.AppViewModelProvider
 import com.df.base.ui.SelectedManga
+import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -46,11 +48,13 @@ object AddDestination : NavigationDestination {
 
 @Composable
 fun AddScreen(
+    loginViewModel: LoginViewModel,
     navController: NavController,
     navigateBack: () -> Unit,
     selectedManga: SelectedManga,
     addViewModel: AddViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+
     val coroutineScope = rememberCoroutineScope()
     val uiState by addViewModel.uiState.collectAsState()
 
@@ -62,6 +66,12 @@ fun AddScreen(
     )
 
     LaunchedEffect(Unit) {
+        addViewModel.setUser(
+            User(
+                userId = loginViewModel.user.value?.userId!!,
+                userName = loginViewModel.user.value?.userName!!
+            )
+        )
         addViewModel.initializeState(
             readingStatus = readingStatus,
             selectedStatus = readingStatus[0],

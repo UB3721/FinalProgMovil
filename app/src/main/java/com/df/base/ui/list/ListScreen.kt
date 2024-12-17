@@ -12,9 +12,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.df.base.BottomNavigationBar
 import com.df.base.R
+import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
 import com.df.base.ui.UiListBody
+import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 
 object ListDestination: NavigationDestination {
@@ -25,6 +27,7 @@ object ListDestination: NavigationDestination {
 
 @Composable
 fun ListScreen(
+    loginViewModel: LoginViewModel,
     navController: NavController,
     navToDisplay: (UserManga) -> Unit,
     listViewModel: ListViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -32,6 +35,12 @@ fun ListScreen(
     val listUiState by listViewModel.listUiState.collectAsState()
 
     LaunchedEffect(Unit) {
+        listViewModel.setUser(
+            User(
+                userId = loginViewModel.user.value?.userId!!,
+                userName = loginViewModel.user.value?.userName!!
+            )
+        )
         listViewModel.fetchUserMangaList()
     }
 

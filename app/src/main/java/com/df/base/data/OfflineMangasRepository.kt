@@ -1,6 +1,7 @@
 package com.df.base.data
 
 import com.df.base.model.back.Collection
+import com.df.base.model.back.LoginRequest
 import com.df.base.model.back.MangaCollection
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
@@ -14,6 +15,12 @@ import retrofit2.Response
 class OfflineMangasRepository(
     private val apiService: BackApiService
 ): MangasRepository {
+    override suspend fun login(loginRequest: LoginRequest) : Response<User> {
+        return apiService.login(loginRequest)
+    }
+
+    override suspend fun logout(): Response<Unit> = apiService.logout()
+
     override suspend fun saveUserManga(userManga: UserManga): Response<SuccessResponse> {
         return apiService.saveUserMangaWithManga(userManga)
     }
@@ -21,6 +28,8 @@ class OfflineMangasRepository(
     override suspend fun updateUserManga(userManga: UserManga): Response<SuccessResponse> {
         return apiService.updateUserManga(userManga)
     }
+
+    override suspend fun getUserByUsername(username: String): User = apiService.getUserByUsername(username)
 
     override suspend  fun getUserMangaStream(id: Int): List<UserManga> = apiService.getUserManga(id)
 

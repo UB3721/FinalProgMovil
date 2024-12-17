@@ -1,6 +1,7 @@
 package com.df.base.data
 
 import com.df.base.model.back.Collection
+import com.df.base.model.back.LoginRequest
 import com.df.base.model.back.MangaCollection
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
@@ -10,6 +11,11 @@ import com.df.base.network.SuccessResponse
 import retrofit2.Response
 
 interface MangasRepository {
+    suspend fun login(loginRequest: LoginRequest) : Response<User>
+    suspend fun logout(): Response<Unit>
+
+    suspend fun getUserByUsername(username: String): User
+
     suspend fun saveUserManga(userManga: UserManga): Response<SuccessResponse>
 
     suspend fun updateUserManga(userManga: UserManga): Response<SuccessResponse>

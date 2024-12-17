@@ -27,8 +27,10 @@ import androidx.navigation.NavController
 import com.df.base.BottomNavigationBar
 import com.df.base.R
 import com.df.base.model.back.Collection
+import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
+import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -46,6 +48,7 @@ object EditDestination : NavigationDestination {
 
 @Composable
 fun EditScreen(
+    loginViewModel: LoginViewModel,
     navController: NavController,
     navigateBack: () -> Unit,
     userManga: UserManga,
@@ -62,6 +65,12 @@ fun EditScreen(
     )
 
     LaunchedEffect(Unit) {
+        viewModel.setUser(
+            User(
+                userId = loginViewModel.user.value?.userId!!,
+                userName = loginViewModel.user.value?.userName!!
+            )
+        )
         viewModel.initializeState(
             userManga = userManga
         )

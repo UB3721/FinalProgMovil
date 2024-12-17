@@ -15,6 +15,7 @@ import com.df.base.ui.collection.CollectionMangaViewModel
 import com.df.base.ui.collection.CollectionViewModel
 import com.df.base.ui.favorites.FavoritesViewModel
 import com.df.base.ui.list.ListViewModel
+import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.profile.ProfileViewModel
 
 object AppViewModelProvider {
@@ -58,6 +59,12 @@ object AppViewModelProvider {
         initializer {
             CollectionMangaViewModel(
                 this.createSavedStateHandle(),
+                projectApp().container.mangasRepository
+            )
+        }
+
+        initializer {
+            LoginViewModel(
                 projectApp().container.mangasRepository
             )
         }

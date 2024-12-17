@@ -9,6 +9,7 @@
     <string name = "add_element">Add new element</string>
     <string name = "display"> Manga </string>
     <string name = "collection_manga">Collection Manga</string>
+    <string name = "login">Login</string>
 
     <string name = "delete">Delete this media</string>
     <string name="collection_delete">Delete media from collection</string>

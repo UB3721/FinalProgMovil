@@ -54,6 +54,7 @@ import coil.compose.AsyncImage
 import com.df.base.BottomNavigationBar
 import com.df.base.R
 import com.df.base.model.back.SharedLink
+import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
 import com.df.base.ui.CommonDialog
@@ -61,6 +62,7 @@ import com.df.base.ui.MangaAction
 import com.df.base.ui.add.AddDestination
 import com.df.base.ui.add.MangaDetails
 import com.df.base.ui.add.toMangaDetails
+import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
@@ -77,6 +79,7 @@ object ProfileDestination: NavigationDestination {
 
 @Composable
 fun ProfileScreen(
+    loginViewModel: LoginViewModel,
     navController: NavController,
     navigateToEdit: (UserManga) -> Unit,
     profileViewModel: ProfileViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -84,7 +87,12 @@ fun ProfileScreen(
     val profileUiState by profileViewModel.profileUiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        profileViewModel.fetchUserData()
+        profileViewModel.setUser(
+            User(
+                userId = loginViewModel.user.value?.userId!!,
+                userName = loginViewModel.user.value?.userName!!
+            )
+        )
         profileViewModel.fetchSharedLinkList()
         profileViewModel.fetchUserStatistics()
     }

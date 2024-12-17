@@ -2,6 +2,7 @@ package com.df.base.network
 
 import androidx.room.Delete
 import com.df.base.model.back.Collection
+import com.df.base.model.back.LoginRequest
 import com.df.base.model.back.MangaCollection
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
@@ -16,8 +17,10 @@ import retrofit2.Retrofit
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 private const val BASE_URL =
@@ -63,6 +66,11 @@ interface BackApiService {
     @GET("user")
     suspend fun getUserData(
         @Query("userId") userId: Int
+    ): User
+
+    @GET("user/{username{")
+    suspend fun getUserByUsername(
+        @Path("userName") userName: String
     ): User
 
     @GET("user/statistics")
@@ -129,6 +137,12 @@ interface BackApiService {
         @Query("userId") userId: Int,
         @Query("collectionId") collectionId: Int
     ): Response<SuccessResponse>
+
+    @POST("users/login")
+    suspend fun login(@Body loginRequest: LoginRequest): Response<User>
+
+    @POST("users/logout")
+    suspend fun logout(): Response<Unit>
 }
 
 object BackApi {

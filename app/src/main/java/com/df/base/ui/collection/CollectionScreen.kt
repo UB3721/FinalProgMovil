@@ -40,7 +40,9 @@ import androidx.navigation.NavController
 import com.df.base.BottomNavigationBar
 import com.df.base.R
 import com.df.base.model.back.Collection
+import com.df.base.model.back.User
 import com.df.base.ui.AppViewModelProvider
+import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 
 object CollectionDestination: NavigationDestination {
@@ -51,6 +53,7 @@ object CollectionDestination: NavigationDestination {
 
 @Composable
 fun CollectionScreen(
+    loginViewModel: LoginViewModel,
     navController: NavController,
     navToCollectionManga: (Int) -> Unit,
     collectionViewModel: CollectionViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -58,6 +61,12 @@ fun CollectionScreen(
     val collectionUiState by collectionViewModel.collectionUiState.collectAsState()
 
     LaunchedEffect(Unit) {
+        collectionViewModel.setUser(
+            User(
+                userId = loginViewModel.user.value?.userId!!,
+                userName = loginViewModel.user.value?.userName!!
+            )
+        )
         collectionViewModel.fetchAllCollections()
     }
 

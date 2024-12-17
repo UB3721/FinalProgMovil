@@ -112,7 +112,7 @@ class EditViewModel(private val mangasRepository: MangasRepository): ViewModel()
     private fun fetchAllCollections() {
         viewModelScope.launch {
             try {
-                val collectionList = mangasRepository.getAllCollection(1)
+                val collectionList = mangasRepository.getAllCollection(_uiState.value.mangaDetails.userId)
                 _uiState.value = _uiState.value.copy(
                     userCollectionList = collectionList
                 )
@@ -120,6 +120,14 @@ class EditViewModel(private val mangasRepository: MangasRepository): ViewModel()
                 println("Error fetching collections: ${e.message}")
             }
         }
+    }
+
+    fun setUser(user: User) {
+        _uiState.value = _uiState.value.copy(
+            mangaDetails = _uiState.value.mangaDetails.copy(
+                userId = user.userId
+            )
+        )
     }
 
     suspend fun updateUserManga() {

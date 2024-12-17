@@ -88,6 +88,14 @@ class AddViewModel(private val mangasRepository: MangasRepository): ViewModel() 
         )
     }
 
+    fun setUser(user: User) {
+        _uiState.value = _uiState.value.copy(
+            mangaDetails = _uiState.value.mangaDetails.copy(
+                userId = user.userId
+            )
+        )
+    }
+
     suspend fun saveUserManga() {
         try {
             val response = mangasRepository.saveUserManga(uiState.value.mangaDetails.toUserManga())
@@ -119,7 +127,7 @@ data class AddUiState(
 )
 
 data class MangaDetails(
-    val userId: Int = 1,
+    val userId: Int = 0,
     val mangaId: Int? = null,
     val link: String = "",
     val altLink: String = "",

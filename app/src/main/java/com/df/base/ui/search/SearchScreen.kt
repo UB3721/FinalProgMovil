@@ -58,6 +58,7 @@ import com.df.base.ui.navigation.NavigationDestination
 import com.df.base.model.mangadex.Manga
 import com.df.base.ui.CommonDialog
 import com.df.base.ui.MangaAction
+import com.df.base.ui.login.LoginViewModel
 
 object SearchDestination: NavigationDestination {
     override  val route = "search"
@@ -67,10 +68,12 @@ object SearchDestination: NavigationDestination {
 
 @Composable
 fun MangaScreen(
+    loginViewModel: LoginViewModel,
     navController: NavController,
     mangaViewModel: SearchViewModel = viewModel()
 ) {
     val searchUiState by mangaViewModel.searchUiState.collectAsState()
+
 
     Scaffold(
         bottomBar = {

@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -30,6 +31,7 @@ import com.df.base.R
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
+import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -47,6 +49,7 @@ object DisplayDestination : NavigationDestination {
 
 @Composable
 fun DisplayScreen(
+    loginViewModel: LoginViewModel,
     navController: NavController,
     userManga: UserManga,
     navigateToEdit: (MangaDetails) -> Unit,
@@ -54,6 +57,15 @@ fun DisplayScreen(
 ) {
     val uiState by displayViewModel.displayUiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        displayViewModel.setUser(
+            User(
+                userId = loginViewModel.user.value?.userId!!,
+                userName = loginViewModel.user.value?.userName!!
+            )
+        )
+    }
 
     Scaffold(
         bottomBar = {

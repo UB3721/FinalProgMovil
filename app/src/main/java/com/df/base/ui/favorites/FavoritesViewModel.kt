@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
+import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,9 +15,6 @@ class FavoritesViewModel(private val mangasRepository: MangasRepository): ViewMo
     private val _favoritesViewModel = MutableStateFlow(FavoritesUiState())
     val favoritesUiState: StateFlow<FavoritesUiState> = _favoritesViewModel.asStateFlow()
 
-//    init {
-//        fetchUserMangaList()
-//    }
 
     fun deleteUserManga(userManga: UserManga) {
         viewModelScope.launch {
@@ -35,11 +33,19 @@ class FavoritesViewModel(private val mangasRepository: MangasRepository): ViewMo
         }
     }
 
+    fun setUser(user: User) {
+        _favoritesViewModel.value = _favoritesViewModel.value.copy(
+            userId = user.userId
+        )
+    }
+
     fun fetchUserMangaList() {
         viewModelScope.launch {
             try {
-                val userMangaList = mangasRepository.getFavoritesUserMangaStream(1)
-                _favoritesViewModel.value = FavoritesUiState(userMangaList)
+                val userMangaList = mangasRepository.getFavoritesUserMangaStream(_favoritesViewModel.value.userId)
+                _favoritesViewModel.value = _favoritesViewModel.value.copy(
+                    userMangaList = userMangaList
+                )
             } catch (e: Exception) {
                 _favoritesViewModel.value = FavoritesUiState()
                 println("Error fetching favorite user manga list: ${e.message}")
@@ -48,4 +54,7 @@ class FavoritesViewModel(private val mangasRepository: MangasRepository): ViewMo
     }
 }
 
-data class FavoritesUiState (val userMangaList: List<UserManga> = listOf())
+data class FavoritesUiState (
+    val userId: Int = 0,
+    val userMangaList: List<UserManga> = listOf()
+)

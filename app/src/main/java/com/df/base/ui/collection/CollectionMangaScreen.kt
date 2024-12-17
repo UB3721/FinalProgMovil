@@ -29,9 +29,11 @@ import com.df.base.BottomNavigationBar
 import com.df.base.R
 import com.df.base.model.back.MangaCollection
 import com.df.base.model.back.Collection
+import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
 import com.df.base.ui.UiItemList
+import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 
 object CollectionMangaDestination: NavigationDestination {
@@ -44,6 +46,7 @@ object CollectionMangaDestination: NavigationDestination {
 
 @Composable
 fun CollectionMangaScreen(
+    loginViewModel: LoginViewModel,
     navController: NavController,
     navToDisplay: (UserManga) -> Unit,
     collectionMangaViewModel: CollectionMangaViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -51,6 +54,12 @@ fun CollectionMangaScreen(
     val collectionMangaUiState by collectionMangaViewModel.collectionMangaUiState.collectAsState()
 
     LaunchedEffect(Unit) {
+        collectionMangaViewModel.setUser(
+            User(
+                userId = loginViewModel.user.value?.userId!!,
+                userName = loginViewModel.user.value?.userName!!
+            )
+        )
         collectionMangaViewModel.fetchAllMangaCollection()
     }
 
