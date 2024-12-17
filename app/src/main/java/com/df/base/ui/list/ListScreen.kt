@@ -7,10 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.df.base.BottomNavigationBar
 import com.df.base.R
+import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
 import com.df.base.ui.UiListBody
 import com.df.base.ui.navigation.NavigationDestination
@@ -24,6 +26,7 @@ object ListDestination: NavigationDestination {
 @Composable
 fun ListScreen(
     navController: NavController,
+    navToDisplay: (UserManga) -> Unit,
     listViewModel: ListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val listUiState by listViewModel.listUiState.collectAsState()
@@ -38,9 +41,12 @@ fun ListScreen(
         }
     ) { innerPadding ->
         UiListBody(
+            title = stringResource(R.string.delete),
             mangaList = listUiState.userMangaList,
             contentPadding = innerPadding,
-            navController = navController
+            navToDisplay = navToDisplay,
+            onDialogActionUserManga = {listViewModel.deleteUserManga(it)},
+            collection = null,
         )
     }
 }

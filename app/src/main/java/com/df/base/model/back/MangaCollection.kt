@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MangaCollection(
-    val collectionId: Int,
-    val userId: Int,
-    val mangaId: Int
+    val collection: Collection,
+    val user: User,
+    val manga: MangaBack
 )

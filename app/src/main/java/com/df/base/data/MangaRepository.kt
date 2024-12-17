@@ -16,6 +16,8 @@ interface MangasRepository {
 
     suspend fun getUserMangaStream(id: Int): List<UserManga>
 
+    suspend fun getUserMangaById(userId: Int, mangaId: Int): UserManga
+
     suspend fun getFavoritesUserMangaStream(id: Int): List<UserManga>
 
     suspend fun getAllUsers(id: Int): List<User>
@@ -30,9 +32,9 @@ interface MangasRepository {
 
     suspend fun saveMangaCollection(mangaCollection: MangaCollection): Response<SuccessResponse>
 
-    suspend fun deleteMangaCollection(mangaCollection: MangaCollection): Response<SuccessResponse>
+    suspend fun deleteMangaCollection(userId: Int, collectionId: Int, mangaId: Int): Response<SuccessResponse>
 
-    suspend fun getMangaCollection(mangaId: Int, userId: Int, collectionId: Int): Response<SuccessResponse>
+    suspend fun getMangaCollection(userId: Int, collectionId: Int): List<MangaCollection>
 
     suspend fun getAllCollection(id: Int): List<Collection>
 
@@ -41,4 +43,8 @@ interface MangasRepository {
     suspend fun updateCollectionName(collection: Collection): Response<SuccessResponse>
 
     suspend fun updateSharedLinkState(sharedLink: SharedLink): Response<SuccessResponse>
+
+    suspend fun deleteCollection(userId: Int, collectionId: Int): Response<SuccessResponse>
+
+    suspend fun deleteUserManga(userId: Int, mangaId: Int): Response<SuccessResponse>
 }

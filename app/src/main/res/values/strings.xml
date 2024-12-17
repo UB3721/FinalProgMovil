@@ -8,6 +8,10 @@
     <string name = "profile">Profile</string>
     <string name = "add_element">Add new element</string>
     <string name = "display"> Manga </string>
+    <string name = "collection_manga">Collection Manga</string>
+
+    <string name = "delete">Delete this media</string>
+    <string name="collection_delete">Delete media from collection</string>
 
     <string name="description_search">Search Manga</string>
     <string name="no_results_found">No results found</string>

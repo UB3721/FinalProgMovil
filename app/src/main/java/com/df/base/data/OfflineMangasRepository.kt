@@ -24,6 +24,8 @@ class OfflineMangasRepository(
 
     override suspend  fun getUserMangaStream(id: Int): List<UserManga> = apiService.getUserManga(id)
 
+    override suspend fun getUserMangaById(userId: Int, mangaId: Int): UserManga = apiService.getUserMangaById(userId, mangaId)
+
     override suspend  fun getFavoritesUserMangaStream(id: Int): List<UserManga> = apiService.getFavoritesUserManga(id)
 
     override suspend fun getAllUsers(id: Int): List<User> = apiService.getAllUsers(id)
@@ -38,8 +40,6 @@ class OfflineMangasRepository(
 
     override suspend fun saveMangaCollection(mangaCollection: MangaCollection): Response<SuccessResponse> = apiService.saveMangaCollection(mangaCollection)
 
-    override suspend fun deleteMangaCollection(mangaCollection: MangaCollection): Response<SuccessResponse> = apiService.deleteMangaCollection(mangaCollection)
-
     override suspend fun getAllCollection(id: Int): List<Collection> = apiService.getAllCollection(id)
 
     override suspend fun saveCollection(collection: Collection): Response<SuccessResponse> = apiService.saveCollection(collection)
@@ -48,7 +48,11 @@ class OfflineMangasRepository(
 
     override suspend fun updateSharedLinkState(sharedLink: SharedLink): Response<SuccessResponse> = apiService.updateSharedLinkState(sharedLink)
 
-    override suspend fun getMangaCollection(mangaId: Int, userId: Int, collectionId: Int): Response<SuccessResponse> = apiService.getMangaCollection(mangaId, userId, collectionId)
+    override suspend fun getMangaCollection(userId: Int, collectionId: Int): List<MangaCollection> = apiService.getMangaCollection(userId, collectionId)
 
+    override suspend fun deleteCollection(userId: Int, collectionId: Int): Response<SuccessResponse> = apiService.deleteCollection(userId, collectionId)
 
+    override suspend fun deleteMangaCollection(userId: Int, collectionId: Int, mangaId: Int): Response<SuccessResponse> = apiService.deleteMangaCollection(userId, collectionId, mangaId)
+
+    override suspend fun deleteUserManga(userId: Int, mangaId: Int): Response<SuccessResponse> = apiService.deleteUserManga(userId, mangaId)
 }

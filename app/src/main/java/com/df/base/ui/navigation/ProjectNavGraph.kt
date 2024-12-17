@@ -5,9 +5,11 @@ import com.df.base.ui.search.MangaScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.df.base.model.back.MangaCollection
 import com.df.base.model.back.UserManga
 import com.df.base.ui.SelectedManga
 import com.df.base.ui.add.AddDestination
@@ -17,6 +19,8 @@ import com.df.base.ui.add.DisplayScreen
 import com.df.base.ui.add.EditDestination
 import com.df.base.ui.add.EditScreen
 import com.df.base.ui.collection.CollectionDestination
+import com.df.base.ui.collection.CollectionMangaDestination
+import com.df.base.ui.collection.CollectionMangaScreen
 import com.df.base.ui.collection.CollectionScreen
 import com.df.base.ui.favorites.FavoritesDestination
 import com.df.base.ui.favorites.FavoritesScreen
@@ -61,16 +65,28 @@ fun ProjectNavHost(
         }
         composable(route = ListDestination.route) {
             ListScreen(
+                navToDisplay = {userManga ->
+                    navController.navigate(DisplayDestination.routeWithArgs(userManga))
+                },
                 navController = navController
             )
         }
 
         composable(route = CollectionDestination.route) {
-            CollectionScreen(navController = navController)
+            CollectionScreen(
+                navController = navController,
+                navToCollectionManga = { navController.navigate("${CollectionMangaDestination.route}/${it}")
+                }
+            )
         }
 
         composable(route = FavoritesDestination.route) {
-            FavoritesScreen(navController = navController)
+            FavoritesScreen(
+                navToDisplay = {userManga ->
+                    navController.navigate(DisplayDestination.routeWithArgs(userManga))
+                },
+                navController = navController
+            )
         }
 
         composable(route = ProfileDestination.route) {
@@ -132,6 +148,20 @@ fun ProjectNavHost(
                     navController.popBackStack()
                 },
                 userManga = userManga
+            )
+        }
+
+        composable(
+            route = CollectionMangaDestination.routeWithArgs,
+            arguments = listOf(navArgument(CollectionMangaDestination.collectionIdArg) {
+                type = NavType.IntType
+            })
+        ) {
+            CollectionMangaScreen(
+                navToDisplay = {userManga ->
+                    navController.navigate(DisplayDestination.routeWithArgs(userManga))
+                },
+                navController = navController
             )
         }
 

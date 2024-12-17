@@ -6,12 +6,18 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
+import com.df.base.model.back.Collection
+import com.df.base.model.back.MangaBack
+import com.df.base.model.back.MangaCollection
+import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.SelectedManga
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -97,9 +103,14 @@ class AddViewModel(private val mangasRepository: MangasRepository): ViewModel() 
             Log.d("SaveUserManga", "Exception: ${e.message}")
         }
     }
+
+
+
 }
 
 data class AddUiState(
+    val userCollectionList: List<Collection> = listOf(),
+    val selectedCollectionList: List<Collection> = listOf(),
     val isTitleExpanded: Boolean = false,
     val isDropdownExpanded: Boolean = false,
     val readingStatus: List<String> = listOf(),
@@ -159,4 +170,13 @@ fun UserManga.toMangaDetails(): MangaDetails = MangaDetails(
     coverUrl = coverUrl,
     publicationDate = publicationDate,
     synopsis = synopsis
+)
+
+fun MangaDetails.toMangaBack(): MangaBack = MangaBack(
+    mangaId = mangaId ?: 0,
+    mangadexId = mangadexId,
+    title = userTitle,
+    coverUrl = coverUrl ?: "",
+    publicationDate = publicationDate,
+    synopsis = synopsis ?: ""
 )

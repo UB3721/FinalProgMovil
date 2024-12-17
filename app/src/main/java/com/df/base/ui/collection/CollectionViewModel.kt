@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
 import com.df.base.model.back.Collection
-import com.df.base.model.back.MangaCollection
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +24,13 @@ class CollectionViewModel(private val mangasRepository: MangasRepository) : View
         _collectionUiState.value = _collectionUiState.value.copy(
             newCollection = _collectionUiState.value.newCollection.copy(
                 collectionName = newName
-            )
+            ),
+        )
+    }
+
+    fun updateEditName(newEditName: String) {
+        _collectionUiState.value = _collectionUiState.value.copy(
+            editNewName = newEditName
         )
     }
 
@@ -67,6 +72,7 @@ class CollectionViewModel(private val mangasRepository: MangasRepository) : View
 }
 
 data class CollectionUiState(
+    val editNewName: String = "",
     val newCollection: Collection = Collection(
         collectionId = 0,
         userId = 1,

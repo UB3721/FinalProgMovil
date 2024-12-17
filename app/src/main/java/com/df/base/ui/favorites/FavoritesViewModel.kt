@@ -1,5 +1,6 @@
 package com.df.base.ui.favorites
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
@@ -16,6 +17,23 @@ class FavoritesViewModel(private val mangasRepository: MangasRepository): ViewMo
 //    init {
 //        fetchUserMangaList()
 //    }
+
+    fun deleteUserManga(userManga: UserManga) {
+        viewModelScope.launch {
+            val response = mangasRepository.deleteUserManga(
+                userId = userManga.userId,
+                mangaId = userManga.mangaId ?: 0
+            )
+            if (response.isSuccessful) {
+                val successMessage = response.body()?.message
+                Log.d("DeleteUserManga", "Success: $successMessage")
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.d("DeleteUserManga", "Error: $errorBody")
+            }
+            fetchUserMangaList()
+        }
+    }
 
     fun fetchUserMangaList() {
         viewModelScope.launch {

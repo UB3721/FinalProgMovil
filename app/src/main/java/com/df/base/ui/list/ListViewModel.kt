@@ -1,5 +1,6 @@
 package com.df.base.ui.list
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
@@ -12,6 +13,24 @@ import kotlinx.coroutines.launch
 class ListViewModel(private val mangasRepository: MangasRepository): ViewModel() {
     private val _listUiState = MutableStateFlow(ListUiState())
     val listUiState: StateFlow<ListUiState> = _listUiState.asStateFlow()
+
+
+    fun deleteUserManga(userManga: UserManga) {
+        viewModelScope.launch {
+            val response = mangasRepository.deleteUserManga(
+                userId = userManga.userId,
+                mangaId = userManga.mangaId ?: 0
+            )
+            if (response.isSuccessful) {
+                val successMessage = response.body()?.message
+                Log.d("DeleteUserManga", "Success: $successMessage")
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.d("DeleteUserManga", "Error: $errorBody")
+            }
+            fetchUserMangaList()
+        }
+    }
 
     fun fetchUserMangaList() {
         viewModelScope.launch {
@@ -26,4 +45,6 @@ class ListViewModel(private val mangasRepository: MangasRepository): ViewModel()
     }
 }
 
-data class ListUiState(val userMangaList: List<UserManga> = listOf())
+data class ListUiState(
+    val userMangaList: List<UserManga> = listOf()
+)

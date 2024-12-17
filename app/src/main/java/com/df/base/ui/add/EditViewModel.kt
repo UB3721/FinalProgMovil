@@ -3,12 +3,17 @@ package com.df.base.ui.add
 import android.util.Log
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
+import com.df.base.model.back.Collection
+import com.df.base.model.back.MangaCollection
+import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.SelectedManga
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class EditViewModel(private val mangasRepository: MangasRepository): ViewModel() {
     private val _uiState = MutableStateFlow(AddUiState())
@@ -60,8 +65,61 @@ class EditViewModel(private val mangasRepository: MangasRepository): ViewModel()
     fun initializeState(
         userManga: UserManga
     ) {
-        Log.d("tag", userManga.toString())
         _uiState.value = _uiState.value.copy(mangaDetails = userManga.toMangaDetails())
+        fetchAllCollections()
+    }
+
+    private fun saveSelectedCollections() {
+        viewModelScope.launch {
+            try {
+                for (collection in _uiState.value.selectedCollectionList) {
+                    Log.d("tag", _uiState.value.mangaDetails.toMangaBack().toString())
+                    val response = mangasRepository.saveMangaCollection(
+                        MangaCollection(
+                            collection = collection,
+                            manga = _uiState.value.mangaDetails.toMangaBack(),
+                            user = User(userId = 1, userName = "")
+                        )
+                    )
+
+                    if (response.isSuccessful) {
+                        val successMessage = response.body()?.message
+                        Log.d("SaveCollection", "Success: $successMessage")
+                    } else {
+                        val errorBody = response.errorBody()?.string()
+                        Log.d("SaveCollection", "Error saving collection:, Error: $errorBody")
+                    }
+                }
+            } catch (e: Exception) {
+                println("Error saving collections: ${e.message}")
+            }
+        }
+    }
+
+
+    fun toggleCollectionSelection(collection: Collection) {
+        if (_uiState.value.selectedCollectionList.contains(collection)) {
+            _uiState.value = _uiState.value.copy(
+                selectedCollectionList = _uiState.value.selectedCollectionList.filterNot { it == collection }
+            )
+        } else {
+            _uiState.value = _uiState.value.copy(
+                selectedCollectionList = _uiState.value.selectedCollectionList + collection
+            )
+        }
+    }
+
+    private fun fetchAllCollections() {
+        viewModelScope.launch {
+            try {
+                val collectionList = mangasRepository.getAllCollection(1)
+                _uiState.value = _uiState.value.copy(
+                    userCollectionList = collectionList
+                )
+            } catch (e: Exception) {
+                println("Error fetching collections: ${e.message}")
+            }
+        }
     }
 
     suspend fun updateUserManga() {
@@ -75,6 +133,7 @@ class EditViewModel(private val mangasRepository: MangasRepository): ViewModel()
                 val errorBody = response.errorBody()?.string()
                 Log.d("updateUserManga", "Error: $errorBody")
             }
+            saveSelectedCollections()
         } catch (e: Exception) {
             Log.d("updateUserManga", "Exception: ${e.message}")
         }

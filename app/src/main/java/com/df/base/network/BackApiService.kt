@@ -1,5 +1,6 @@
 package com.df.base.network
 
+import androidx.room.Delete
 import com.df.base.model.back.Collection
 import com.df.base.model.back.MangaCollection
 import com.df.base.model.back.SharedLink
@@ -43,6 +44,12 @@ interface BackApiService {
         @Query("userId") userId: Int
     ): List<UserManga>
 
+    @GET("userManga")
+    suspend fun getUserMangaById(
+        @Query("userId") userId: Int,
+        @Query("mangaId") mangaId: Int
+    ): UserManga
+
     @GET("userManga/favorites")
     suspend fun getFavoritesUserManga(
         @Query("userId") userId: Int
@@ -85,15 +92,16 @@ interface BackApiService {
 
     @DELETE("mangaCollection")
     suspend fun deleteMangaCollection(
-        @Body request: MangaCollection
+        @Query("userId") userId: Int,
+        @Query("collectionId") collectionId: Int,
+        @Query("mangaId") mangaId: Int
     ): Response<SuccessResponse>
 
     @GET("mangaCollection")
     suspend fun getMangaCollection(
-        @Query("mangaId") mangaId: Int,
         @Query("userId") userId: Int,
         @Query("collectionId") collectionId: Int
-    ): Response<SuccessResponse>
+    ): List<MangaCollection>
 
     @GET("collection")
     suspend fun getAllCollection(
@@ -108,6 +116,18 @@ interface BackApiService {
     @PUT("collection")
     suspend fun updateCollectionName(
         @Body request: Collection
+    ): Response<SuccessResponse>
+
+    @DELETE("userManga")
+    suspend fun deleteUserManga(
+        @Query("userId") userId: Int,
+        @Query("mangaId") mangaId: Int
+    ): Response<SuccessResponse>
+
+    @DELETE("collection")
+    suspend fun deleteCollection(
+        @Query("userId") userId: Int,
+        @Query("collectionId") collectionId: Int
     ): Response<SuccessResponse>
 }
 
