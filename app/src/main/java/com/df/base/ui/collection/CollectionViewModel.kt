@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
 import com.df.base.model.back.Collection
 import com.df.base.model.back.User
+import com.df.base.ui.add.AddUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,6 +37,13 @@ class CollectionViewModel(private val mangasRepository: MangasRepository) : View
     }
 
     fun addCollection() {
+        setUiState()
+        if (_collectionUiState.value.newCollection.collectionName == "") {
+            _collectionUiState.value = _collectionUiState.value.copy(
+                state = CollectionUiState.State.Error(message = "Collection can't be empty")
+            )
+            return
+        }
         viewModelScope.launch {
             _collectionUiState.value = _collectionUiState.value.copy(state = CollectionUiState.State.Loading)
 
@@ -71,6 +79,9 @@ class CollectionViewModel(private val mangasRepository: MangasRepository) : View
         }
     }
 
+    fun setUiState() {
+        _collectionUiState.value = _collectionUiState.value.copy(state = CollectionUiState.State.Loading)
+    }
 
     fun setUser(user: User) {
         _collectionUiState.value = _collectionUiState.value.copy(

@@ -63,7 +63,11 @@ fun CollectionScreen(
 
     when (val state = collectionUiState.state) {
         is CollectionUiState.State.Error -> {
-            ShowWarningAlert(state.message)
+            ShowWarningAlert(
+                state.message,
+                onConfirmation = {collectionViewModel.setUiState()}
+            )
+
         }
         else -> {}
     }
