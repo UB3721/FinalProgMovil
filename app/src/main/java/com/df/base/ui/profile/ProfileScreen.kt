@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -205,10 +206,10 @@ fun StatisticalPie(
     Utils.init(context)
 
     val colors = listOf(
-        MaterialTheme.colorScheme.primary.toArgb(),
-        MaterialTheme.colorScheme.secondary.toArgb(),
-        MaterialTheme.colorScheme.tertiary.toArgb(),
-        MaterialTheme.colorScheme.error.toArgb()
+        Color(0xFF4CAF50).toArgb(),
+        Color(0xFF2196F3).toArgb(),
+        Color(0xFF9F9800).toArgb(),
+        Color(0xFFF44336).toArgb()
     )
 
     val onBackground = MaterialTheme.colorScheme.onBackground.toArgb()

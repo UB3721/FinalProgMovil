@@ -108,7 +108,6 @@ class EditViewModel(private val mangasRepository: MangasRepository): ViewModel()
 
                 if (response.isSuccessful) {
                     _uiState.value = _uiState.value.copy(
-                        state = AddUiState.State.Success,
                         selectedCollectionList = response.body() ?: listOf()
                     )
                 } else {

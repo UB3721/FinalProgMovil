@@ -48,6 +48,9 @@ class ListViewModel(private val mangasRepository: MangasRepository): ViewModel()
         }
     }
 
+    fun setUiState() {
+        _listUiState.value = _listUiState.value.copy(state = ListUiState.State.Loading)
+    }
 
     fun setUser(user: User) {
         _listUiState.value = _listUiState.value.copy(

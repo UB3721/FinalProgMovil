@@ -47,6 +47,10 @@ class DisplayViewModel(private val mangasRepository: MangasRepository): ViewMode
         )
     }
 
+    fun setUiState() {
+        _displayUiState.value = _displayUiState.value.copy(state = DisplayUiState.State.Loading)
+    }
+
     fun setUser(user: User) {
         _displayUiState.value = _displayUiState.value.copy(
             userId = user.userId
@@ -61,20 +65,15 @@ class DisplayViewModel(private val mangasRepository: MangasRepository): ViewMode
 
             if (response.isSuccessful) {
                 _displayUiState.value = _displayUiState.value.copy(
-                    state = DisplayUiState.State.Success,
                     userList = response.body()?: listOf()
                 )
 
             } else {
                 val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                _displayUiState.value = _displayUiState.value.copy(
-                    state = DisplayUiState.State.Error(message = errorBody)
-                )
+                Log.d("getUsers", errorBody)
             }
         } catch (e: Exception) {
-            _displayUiState.value = _displayUiState.value.copy(
-                state = DisplayUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
-            )
+            Log.d("getUsers", e.localizedMessage ?: "Unknown error")
         }
     }
 

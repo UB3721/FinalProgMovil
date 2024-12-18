@@ -33,6 +33,7 @@ fun UiCollection(
         Text(
             text = "Collections",
             style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(bottom = 8.dp)
         )
@@ -41,7 +42,7 @@ fun UiCollection(
             Text(
                 text = "No collection found",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else {
             LazyColumn(
@@ -59,7 +60,8 @@ fun UiCollection(
                                 toggleCollectionSelection(collection)
                             }
                             .background(
-                                if (isSelected) Color.LightGray else Color.Transparent
+                                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                                else Color.Transparent
                             )
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -67,6 +69,7 @@ fun UiCollection(
                         Text(
                             text = collection.collectionName,
                             style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
                                 .padding(8.dp)
                                 .fillMaxWidth()
@@ -79,6 +82,7 @@ fun UiCollection(
         }
     }
 }
+
 
 
 

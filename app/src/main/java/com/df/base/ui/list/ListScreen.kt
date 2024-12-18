@@ -35,7 +35,7 @@ fun ListScreen(
     listViewModel: ListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val listUiState by listViewModel.listUiState.collectAsState()
-    Log.d("delete", listUiState.state.toString())
+
     when (val state = listUiState.state) {
         is ListUiState.State.Error -> {
             ShowWarningAlert(state.message)
@@ -63,7 +63,10 @@ fun ListScreen(
             mangaList = listUiState.userMangaList,
             contentPadding = innerPadding,
             navToDisplay = navToDisplay,
-            onDialogActionUserManga = {listViewModel.deleteUserManga(it)},
+            onDialogActionUserManga = {
+                listViewModel.setUiState()
+                listViewModel.deleteUserManga(it)
+                                      },
             collection = null,
         )
     }

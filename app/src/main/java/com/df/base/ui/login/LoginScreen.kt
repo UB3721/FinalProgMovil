@@ -1,5 +1,6 @@
 package com.df.base.ui.login
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -41,6 +42,7 @@ fun LoginScreen(
 
     Column(
         modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.background)
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,7 +53,8 @@ fun LoginScreen(
             onValueChange = { username = it },
             label = { Text("Username") },
             modifier = Modifier.fillMaxWidth(),
-            isError = username.isEmpty() && loginState is LoginState.Error
+            isError = username.isEmpty() && loginState is LoginState.Error,
+            colors = TextFieldDefaults.colors()
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -62,7 +65,8 @@ fun LoginScreen(
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            isError = password.isEmpty() && loginState is LoginState.Error
+            isError = password.isEmpty() && loginState is LoginState.Error,
+            colors = TextFieldDefaults.colors()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -76,7 +80,11 @@ fun LoginScreen(
                 }
             },
             enabled = username.isNotEmpty() && password.isNotEmpty() && loginState != LoginState.Loading,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             if (loginState == LoginState.Loading) {
                 CircularProgressIndicator(
@@ -106,4 +114,5 @@ fun LoginScreen(
         }
     }
 }
+
 

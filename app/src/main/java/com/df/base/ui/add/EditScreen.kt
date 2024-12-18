@@ -76,6 +76,7 @@ fun EditScreen(
     )
 
     LaunchedEffect(Unit) {
+        viewModel.setUiState()
         viewModel.setUser(
             User(
                 userId = loginViewModel.user.value?.userId!!,
