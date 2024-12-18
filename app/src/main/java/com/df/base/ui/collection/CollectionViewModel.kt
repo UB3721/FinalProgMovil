@@ -37,15 +37,25 @@ class CollectionViewModel(private val mangasRepository: MangasRepository) : View
 
     fun addCollection() {
         viewModelScope.launch {
+            _collectionUiState.value = _collectionUiState.value.copy(state = CollectionUiState.State.Loading)
+
             try {
                 val response = mangasRepository.saveCollection(_collectionUiState.value.newCollection)
+
                 if (response.isSuccessful) {
                     val successMessage = response.body()?.message
                     Log.d("saveCollection", "Success: $successMessage")
+                    _collectionUiState.value = _collectionUiState.value.copy(
+                        state = CollectionUiState.State.Success
+                    )
                 } else {
-                    val errorBody = response.errorBody()?.string()
+                    val errorBody = response.errorBody()?.string() ?: "Unknown error"
                     Log.d("saveCollection", "Error: $errorBody")
+                    _collectionUiState.value = _collectionUiState.value.copy(
+                        state = CollectionUiState.State.Error(message = errorBody)
+                    )
                 }
+
                 _collectionUiState.value = _collectionUiState.value.copy(
                     newCollection = _collectionUiState.value.newCollection.copy(
                         collectionName = ""
@@ -54,9 +64,13 @@ class CollectionViewModel(private val mangasRepository: MangasRepository) : View
                 fetchAllCollections()
             } catch (e: Exception) {
                 println("Error saving collection: ${e.message}")
+                _collectionUiState.value = _collectionUiState.value.copy(
+                    state = CollectionUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+                )
             }
         }
     }
+
 
     fun setUser(user: User) {
         _collectionUiState.value = _collectionUiState.value.copy(
@@ -67,19 +81,34 @@ class CollectionViewModel(private val mangasRepository: MangasRepository) : View
 
     fun fetchAllCollections() {
         viewModelScope.launch {
+            _collectionUiState.value = _collectionUiState.value.copy(state = CollectionUiState.State.Loading)
+
             try {
-                val collectionList = mangasRepository.getAllCollection(_collectionUiState.value.userId)
-                _collectionUiState.value = _collectionUiState.value.copy(
-                    userCollectionList = collectionList
-                )
+                val response = mangasRepository.getAllCollection(_collectionUiState.value.userId)
+
+                if (response.isSuccessful) {
+                    _collectionUiState.value = _collectionUiState.value.copy(
+                        state = CollectionUiState.State.Success,
+                        userCollectionList = response.body() ?: listOf()
+                    )
+                } else {
+                    val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                    _collectionUiState.value = _collectionUiState.value.copy(
+                        state = CollectionUiState.State.Error(message = errorBody)
+                    )
+                }
             } catch (e: Exception) {
-                println("Error fetching collections: ${e.message}")
+                _collectionUiState.value = _collectionUiState.value.copy(
+                    state = CollectionUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+                )
             }
         }
     }
+
 }
 
 data class CollectionUiState(
+    val state: State = State.Idle,
     val userId: Int = 0,
     val editNewName: String = "",
     val newCollection: Collection = Collection(
@@ -91,4 +120,11 @@ data class CollectionUiState(
     ),
     val showDialog: Boolean = false,
     val userCollectionList: List<Collection> = listOf()
-)
+) {
+    sealed class State {
+        object Loading : State()
+        object Success : State()
+        data class Error(val message: String) : State()
+        object Idle : State()
+    }
+}

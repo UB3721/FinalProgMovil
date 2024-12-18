@@ -12,7 +12,10 @@ import androidx.compose.ui.res.stringResource
 import com.df.base.R
 
 @Composable
-fun ShowWarningAlert(message: String) {
+fun ShowWarningAlert(
+    message: String,
+    onConfirmation: () -> Unit = {},
+) {
     var showDialog by rememberSaveable { mutableStateOf(true) }
 
     if (showDialog) {
@@ -27,6 +30,7 @@ fun ShowWarningAlert(message: String) {
             confirmButton = {
                 TextButton(onClick = {
                     showDialog = false
+                    onConfirmation()
                 }) {
                     Text(stringResource(R.string.ok))
                 }

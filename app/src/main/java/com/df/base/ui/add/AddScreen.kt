@@ -1,6 +1,7 @@
 package com.df.base.ui.add
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -59,11 +60,13 @@ fun AddScreen(
     val coroutineScope = rememberCoroutineScope()
     val uiState by addViewModel.uiState.collectAsState()
 
-    when (val state = uiState.state) {
-        is AddUiState.State.Error -> {
-            ShowWarningAlert(state.message)
-        }
-        else -> {}
+    if (uiState.state is AddUiState.State.Error) {
+        ShowWarningAlert(
+            (uiState.state as AddUiState.State.Error).message,
+            onConfirmation = { addViewModel.setUiState() }
+        )
+    } else if (uiState.state is AddUiState.State.Success) {
+        navigateBack()
     }
 
     val readingStatus = listOf(
@@ -112,9 +115,6 @@ fun AddScreen(
             onSaveClick = {
                 coroutineScope.launch {
                     addViewModel.saveUserManga()
-                    if (uiState.state is AddUiState.State.Success) {
-                        navigateBack()
-                    }
                 }
             },
             onFavoriteChanged = {addViewModel.updateIsFavoriteChanged()},

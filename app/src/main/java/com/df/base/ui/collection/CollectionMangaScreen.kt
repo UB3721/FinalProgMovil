@@ -32,6 +32,7 @@ import com.df.base.model.back.Collection
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
+import com.df.base.ui.ShowWarningAlert
 import com.df.base.ui.UiItemList
 import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
@@ -61,6 +62,13 @@ fun CollectionMangaScreen(
             )
         )
         collectionMangaViewModel.fetchAllMangaCollection()
+    }
+
+    when (val state = collectionMangaUiState.state) {
+        is CollectionMangaUiState.State.Error -> {
+            ShowWarningAlert(state.message)
+        }
+        else -> {}
     }
 
     Scaffold(

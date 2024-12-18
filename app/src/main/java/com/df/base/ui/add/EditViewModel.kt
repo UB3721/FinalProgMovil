@@ -98,19 +98,29 @@ class EditViewModel(private val mangasRepository: MangasRepository): ViewModel()
 
     private fun fetchSelectedMangaCollections() {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(state = AddUiState.State.Loading)
+
             try {
-                val collectionList = mangasRepository.getCollectionByMangaId(
+                val response = mangasRepository.getCollectionByMangaId(
                     userId = _uiState.value.mangaDetails.userId,
                     mangaId = _uiState.value.mangaDetails.mangaId ?: 0
                 )
-                _uiState.value = _uiState.value.copy(
-                    selectedCollectionList = collectionList
-                )
+
+                if (response.isSuccessful) {
+                    _uiState.value = _uiState.value.copy(
+                        state = AddUiState.State.Success,
+                        selectedCollectionList = response.body() ?: listOf()
+                    )
+                } else {
+                    val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                    Log.d("tag", errorBody)
+                }
             } catch (e: Exception) {
-                println("Error fetching collections: ${e.message}")
+                Log.d("tag", e.localizedMessage ?: "Unknown error")
             }
         }
     }
+
 
     fun toggleCollectionSelection(collection: Collection) {
         if (_uiState.value.selectedCollectionList.contains(collection)) {
@@ -126,16 +136,33 @@ class EditViewModel(private val mangasRepository: MangasRepository): ViewModel()
 
     private fun fetchAllCollections() {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(state = AddUiState.State.Loading)
+
             try {
-                val collectionList = mangasRepository.getAllCollection(_uiState.value.mangaDetails.userId)
-                _uiState.value = _uiState.value.copy(
-                    userCollectionList = collectionList
-                )
+                val response = mangasRepository.getAllCollection(_uiState.value.mangaDetails.userId)
+
+                if (response.isSuccessful) {
+                    _uiState.value = _uiState.value.copy(
+                        state = AddUiState.State.Success,
+                        userCollectionList = response.body() ?: listOf()
+                    )
+                } else {
+                    val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                    _uiState.value = _uiState.value.copy(
+                        state = AddUiState.State.Error(message = errorBody)
+                    )
+                }
             } catch (e: Exception) {
-                println("Error fetching collections: ${e.message}")
+                _uiState.value = _uiState.value.copy(
+                    state = AddUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+                )
             }
+            fetchSelectedMangaCollections()
         }
-        fetchSelectedMangaCollections()
+    }
+
+    fun setUiState() {
+        _uiState.value = _uiState.value.copy(state = AddUiState.State.Loading)
     }
 
     fun setUser(user: User) {
@@ -146,20 +173,55 @@ class EditViewModel(private val mangasRepository: MangasRepository): ViewModel()
         )
     }
 
+    private fun validateUserManga(mangaDetails: MangaDetails): Result<Unit> {
+        if (mangaDetails.link.isBlank() || mangaDetails.altLink.isBlank()) {
+            return Result.failure(Exception("Link and AltLink cannot be empty."))
+        }
+
+        val currentChapterFloat = mangaDetails.currentChapter.toFloatOrNull()
+            ?: return Result.failure(Exception("Current chapter must be a valid float number."))
+
+        val ratingFloat = mangaDetails.userRating.toFloatOrNull()
+        if (ratingFloat == null || ratingFloat !in 0f..10f) {
+            return Result.failure(Exception("Rating must be a float between 0 and 10."))
+        }
+
+        return Result.success(Unit)
+    }
+
     suspend fun updateUserManga() {
+        _uiState.value = _uiState.value.copy(state = AddUiState.State.Loading)
+
+        val validationResult = validateUserManga(uiState.value.mangaDetails)
+
+        if (validationResult.isFailure) {
+            _uiState.value = _uiState.value.copy(
+                state = AddUiState.State.Error(message = validationResult.exceptionOrNull()?.message ?: "Unknown error")
+            )
+            return
+        }
+
         try {
             val response = mangasRepository.updateUserManga(uiState.value.mangaDetails.toUserManga())
 
             if (response.isSuccessful) {
                 val successMessage = response.body()?.message
                 Log.d("updateUserManga", "Success: $successMessage")
+                _uiState.value = _uiState.value.copy(state = AddUiState.State.Success)
             } else {
-                val errorBody = response.errorBody()?.string()
+                val errorBody = response.errorBody()?.string() ?: "Unknown error"
                 Log.d("updateUserManga", "Error: $errorBody")
+                _uiState.value = _uiState.value.copy(
+                    state = AddUiState.State.Error(message = errorBody)
+                )
             }
             saveSelectedCollections()
         } catch (e: Exception) {
             Log.d("updateUserManga", "Exception: ${e.message}")
+            _uiState.value = _uiState.value.copy(
+                state = AddUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+            )
         }
     }
+
 }

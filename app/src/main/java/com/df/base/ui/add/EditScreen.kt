@@ -30,6 +30,7 @@ import com.df.base.model.back.Collection
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
+import com.df.base.ui.ShowWarningAlert
 import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
@@ -56,6 +57,16 @@ fun EditScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsState()
+
+    if (uiState.state is AddUiState.State.Error) {
+        ShowWarningAlert(
+            (uiState.state as AddUiState.State.Error).message,
+            onConfirmation = { viewModel.setUiState() }
+        )
+    } else if (uiState.state is AddUiState.State.Success) {
+        navigateBack()
+    }
+
 
     val readingStatus = listOf(
         stringResource(R.string.reading),
@@ -100,7 +111,6 @@ fun EditScreen(
             onSaveClick = {
                 coroutineScope.launch {
                     viewModel.updateUserManga()
-                    navigateBack()
                 }
             },
             onFavoriteChanged = {viewModel.updateIsFavoriteChanged()},

@@ -18,20 +18,36 @@ class ListViewModel(private val mangasRepository: MangasRepository): ViewModel()
 
     fun deleteUserManga(userManga: UserManga) {
         viewModelScope.launch {
-            val response = mangasRepository.deleteUserManga(
-                userId = userManga.userId,
-                mangaId = userManga.mangaId ?: 0
-            )
-            if (response.isSuccessful) {
-                val successMessage = response.body()?.message
-                Log.d("DeleteUserManga", "Success: $successMessage")
-            } else {
-                val errorBody = response.errorBody()?.string()
-                Log.d("DeleteUserManga", "Error: $errorBody")
+            _listUiState.value = _listUiState.value.copy(state = ListUiState.State.Loading)
+
+            try {
+                val response = mangasRepository.deleteUserManga(
+                    userId = userManga.userId,
+                    mangaId = userManga.mangaId ?: 0
+                )
+
+                if (response.isSuccessful) {
+                    val successMessage = response.body()?.message
+                    Log.d("DeleteUserManga", "Success: $successMessage")
+                    _listUiState.value = _listUiState.value.copy(state = ListUiState.State.Success)
+                    fetchUserMangaList()
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.d("DeleteUserManga", "Error: $errorBody")
+                    _listUiState.value = _listUiState.value.copy(
+                        state = ListUiState.State.Error(message = errorBody ?: "Unknown error")
+                    )
+                }
+
+            } catch (e: Exception) {
+                Log.d("DeleteUserManga", "Exception: ${e.message}")
+                _listUiState.value = _listUiState.value.copy(
+                    state = ListUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+                )
             }
-            fetchUserMangaList()
         }
     }
+
 
     fun setUser(user: User) {
         _listUiState.value = _listUiState.value.copy(
@@ -41,20 +57,42 @@ class ListViewModel(private val mangasRepository: MangasRepository): ViewModel()
 
     fun fetchUserMangaList() {
         viewModelScope.launch {
+            _listUiState.value = _listUiState.value.copy(state = ListUiState.State.Loading)
+
             try {
-                val userMangaList = mangasRepository.getUserMangaStream(_listUiState.value.userId)
-                _listUiState.value = _listUiState.value.copy(
-                    userMangaList = userMangaList
-                )
+                val response = mangasRepository.getUserMangaStream(_listUiState.value.userId)
+
+                if (response.isSuccessful) {
+                    _listUiState.value = _listUiState.value.copy(
+                        state = ListUiState.State.Success,
+                        userMangaList = response.body() ?: listOf()
+                    )
+                } else {
+                    val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                    _listUiState.value = _listUiState.value.copy(
+                        state = ListUiState.State.Error(message = errorBody)
+                    )
+                }
             } catch (e: Exception) {
-                _listUiState.value = ListUiState()
-                println("Error fetching user manga list: ${e.message}")
+                Log.d("fetchUserMangaList", "Error fetching user manga list: ${e.message}")
+                _listUiState.value = _listUiState.value.copy(
+                    state = ListUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+                )
             }
         }
     }
+
 }
 
 data class ListUiState(
+    val state: State = State.Idle,
     val userId: Int = 0,
     val userMangaList: List<UserManga> = listOf()
-)
+) {
+    sealed class State {
+        data object Loading : State()
+        data object Success : State()
+        data class Error(val message: String) : State()
+        data object Idle : State()
+    }
+}

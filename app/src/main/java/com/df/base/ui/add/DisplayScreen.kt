@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.df.base.BottomNavigationBar
@@ -31,6 +32,7 @@ import com.df.base.R
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
+import com.df.base.ui.ShowWarningAlert
 import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
@@ -57,6 +59,13 @@ fun DisplayScreen(
 ) {
     val uiState by displayViewModel.displayUiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+
+    when (val state = uiState.state) {
+        is DisplayUiState.State.Error -> {
+            ShowWarningAlert(state.message)
+        }
+        else -> {}
+    }
 
     LaunchedEffect(Unit) {
         displayViewModel.setUser(
@@ -91,7 +100,10 @@ fun DisplayScreen(
             selectedUser = uiState.selectedUser,
             isTitleExpanded = uiState.isDescExpanded,
             onTitleExpanded = { displayViewModel.updateIsDescExpanded() },
-            onSharedClicked = {displayViewModel.fetchAllUsers()},
+            onSharedClicked = {
+                coroutineScope.launch {
+                    displayViewModel.fetchAllUsers()
+                }},
             onSaveClicked = {
                 coroutineScope.launch {
                     displayViewModel.saveSharedLink()

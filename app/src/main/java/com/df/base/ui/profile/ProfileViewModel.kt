@@ -58,23 +58,30 @@ class ProfileViewModel(private val mangasRepository: MangasRepository): ViewMode
 
     fun removeSharedLink(sharedLink: SharedLink) {
         viewModelScope.launch {
+            _profileUiState.value = _profileUiState.value.copy(state = ProfileUiState.State.Loading)
             try {
-                val response = mangasRepository.updateSharedLinkState(
-                    sharedLink
-                )
+                val response = mangasRepository.updateSharedLinkState(sharedLink)
                 if (response.isSuccessful) {
                     val successMessage = response.body()?.message
                     Log.d("updateSharedLink", "Success: $successMessage")
+                    _profileUiState.value = _profileUiState.value.copy(state = ProfileUiState.State.Success)
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.d("updateSharedLink", "Error: $errorBody")
+                    _profileUiState.value = _profileUiState.value.copy(
+                        state = ProfileUiState.State.Error(message = errorBody ?: "Unknown error")
+                    )
                 }
                 fetchSharedLinkList()
             } catch (e: Exception) {
                 Log.d("updateSharedLink", "Exception: ${e.message}")
+                _profileUiState.value = _profileUiState.value.copy(
+                    state = ProfileUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+                )
             }
         }
     }
+
 
     fun setUser(user: User) {
         _profileUiState.value = _profileUiState.value.copy(
@@ -84,41 +91,79 @@ class ProfileViewModel(private val mangasRepository: MangasRepository): ViewMode
 
     fun fetchSharedLinkList() {
         viewModelScope.launch {
+            _profileUiState.value = _profileUiState.value.copy(state = ProfileUiState.State.Loading)
+
             try {
-                val sharedLinkList = mangasRepository.getAllSharedLink(_profileUiState.value.user.userId)
-                _profileUiState.value = _profileUiState.value
-                    .copy(
-                        userSharedLinkList = sharedLinkList
+                val response = mangasRepository.getAllSharedLink(_profileUiState.value.user.userId)
+                if (response.isSuccessful) {
+                    val sharedLinkList = response.body() ?: listOf()
+                    _profileUiState.value = _profileUiState.value.copy(
+                        userSharedLinkList = sharedLinkList,
+                        state = ProfileUiState.State.Success
                     )
-                _profileUiState.value = _profileUiState.value
-                    .copy(
-                        userMangaList =
-                            convertSharedLinksToUserManga(_profileUiState.value.userSharedLinkList)
+                    _profileUiState.value = _profileUiState.value.copy(
+                        userMangaList = convertSharedLinksToUserManga(sharedLinkList)
                     )
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.d("fetchSharedLinkList", "Error: $errorBody")
+                    _profileUiState.value = _profileUiState.value.copy(
+                        state = ProfileUiState.State.Error(message = errorBody ?: "Unknown error")
+                    )
+                }
             } catch (e: Exception) {
-                println("Error fetching user shared link list: ${e.message}")
+                Log.d("fetchSharedLinkList", "Exception: ${e.message}")
+                _profileUiState.value = _profileUiState.value.copy(
+                    state = ProfileUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+                )
             }
         }
     }
 
     fun fetchUserStatistics() {
         viewModelScope.launch {
+            _profileUiState.value = _profileUiState.value.copy(state = ProfileUiState.State.Loading)
+
             try {
-                val userStats = mangasRepository.getUserStatistics(_profileUiState.value.user.userId)
-                _profileUiState.value = _profileUiState.value.copy(userStats = userStats.toUserStats())
+                val response = mangasRepository.getUserStatistics(_profileUiState.value.user.userId)
+                if (response.isSuccessful) {
+                    val userStats = response.body()?.toUserStats() ?: UserStats()
+                    _profileUiState.value = _profileUiState.value.copy(
+                        userStats = userStats,
+                        state = ProfileUiState.State.Success
+                    )
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.d("fetchUserStatistics", "Error: $errorBody")
+                    _profileUiState.value = _profileUiState.value.copy(
+                        state = ProfileUiState.State.Error(message = errorBody ?: "Unknown error")
+                    )
+                }
             } catch (e: Exception) {
-                println("Error fetching user statistics: ${e.message}")
+                Log.d("fetchUserStatistics", "Exception: ${e.message}")
+                _profileUiState.value = _profileUiState.value.copy(
+                    state = ProfileUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+                )
             }
         }
     }
+
 }
 
 data class ProfileUiState (
+    val state: State = State.Idle,
     val user: UserDetails = UserDetails(),
     val userStats: UserStats = UserStats(),
     val userSharedLinkList: List<SharedLink> = listOf(),
     val userMangaList: List<UserManga> = listOf()
-)
+){
+    sealed class State {
+        object Loading : State()
+        object Success : State()
+        data class Error(val message: String) : State()
+        object Idle : State()
+    }
+}
 
 data class UserDetails(
     val userId: Int = 0,

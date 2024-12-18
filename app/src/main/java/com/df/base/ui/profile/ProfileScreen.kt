@@ -59,6 +59,7 @@ import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
 import com.df.base.ui.CommonDialog
 import com.df.base.ui.MangaAction
+import com.df.base.ui.ShowWarningAlert
 import com.df.base.ui.add.toMangaDetails
 import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
@@ -84,6 +85,13 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val profileUiState by profileViewModel.profileUiState.collectAsState()
+
+    when (val state = profileUiState.state) {
+        is ProfileUiState.State.Error -> {
+            ShowWarningAlert(state.message)
+        }
+        else -> {}
+    }
 
     LaunchedEffect(Unit) {
         profileViewModel.setUser(

@@ -46,23 +46,23 @@ interface BackApiService {
     @GET("userManga")
     suspend fun getUserManga(
         @Query("userId") userId: Int
-    ): List<UserManga>
+    ): Response<List<UserManga>>
 
     @GET("userManga")
     suspend fun getUserMangaById(
         @Query("userId") userId: Int,
         @Query("mangaId") mangaId: Int
-    ): UserManga
+    ): Response<UserManga>
 
     @GET("userManga/favorites")
     suspend fun getFavoritesUserManga(
         @Query("userId") userId: Int
-    ): List<UserManga>
+    ): Response<List<UserManga>>
 
     @GET("allUsers")
     suspend fun getAllUsers(
         @Query("userId") userId: Int
-    ): List<User>
+    ): Response<List<User>>
 
     @GET("user")
     suspend fun getUserData(
@@ -77,7 +77,7 @@ interface BackApiService {
     @GET("user/statistics")
     suspend fun getUserStatistics(
         @Query("userId") userId: Int
-    ): UserStatistics
+    ): Response<UserStatistics>
 
     @POST("sharedLink")
     suspend fun saveSharedLink(
@@ -87,7 +87,7 @@ interface BackApiService {
     @GET("sharedLink")
     suspend fun getAllSharedLink(
         @Query("userId") userId: Int
-    ): List<SharedLink>
+    ): Response<List<SharedLink>>
 
     @PUT("sharedLink")
     suspend fun updateSharedLinkState(
@@ -110,18 +110,18 @@ interface BackApiService {
     suspend fun getMangaCollection(
         @Query("userId") userId: Int,
         @Query("collectionId") collectionId: Int
-    ): List<MangaCollection>
+    ): Response<List<MangaCollection>>
 
     @GET("collection/{mangaId}/{userId}")
     suspend fun getCollectionByMangaId(
         @Path("mangaId") mangaId: Int,
         @Path("userId") userId: Int
-    ): List<Collection>
+    ): Response<List<Collection>>
 
     @GET("collection")
     suspend fun getAllCollection(
         @Query("userId") userId: Int
-    ): List<Collection>
+    ): Response<List<Collection>>
 
     @POST("collection")
     suspend fun saveCollection(

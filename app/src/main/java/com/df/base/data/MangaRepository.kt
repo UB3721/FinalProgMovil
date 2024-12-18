@@ -22,31 +22,31 @@ interface MangasRepository {
 
     suspend fun updateUserManga(userManga: UserManga): Response<SuccessResponse>
 
-    suspend fun getUserMangaStream(id: Int): List<UserManga>
+    suspend fun getUserMangaStream(id: Int): Response<List<UserManga>>
 
-    suspend fun getUserMangaById(userId: Int, mangaId: Int): UserManga
+    suspend fun getUserMangaById(userId: Int, mangaId: Int): Response<UserManga>
 
-    suspend fun getFavoritesUserMangaStream(id: Int): List<UserManga>
+    suspend fun getFavoritesUserMangaStream(id: Int): Response<List<UserManga>>
 
-    suspend fun getAllUsers(id: Int): List<User>
+    suspend fun getAllUsers(id: Int): Response<List<User>>
 
     suspend fun getUserData(id: Int): User
 
     suspend fun saveSharedLink(sharedLink: SharedLink): Response<SuccessResponse>
 
-    suspend fun getAllSharedLink(id: Int): List<SharedLink>
+    suspend fun getAllSharedLink(id: Int): Response<List<SharedLink>>
 
-    suspend fun getUserStatistics(id: Int): UserStatistics
+    suspend fun getUserStatistics(id: Int): Response<UserStatistics>
 
     suspend fun saveMangaCollection(mangaCollectionRequest: MangaCollectionRequest): Response<SuccessResponse>
 
-    suspend fun getCollectionByMangaId(mangaId: Int, userId: Int): List<Collection>
+    suspend fun getCollectionByMangaId(mangaId: Int, userId: Int): Response<List<Collection>>
 
     suspend fun deleteMangaCollection(userId: Int, collectionId: Int, mangaId: Int): Response<SuccessResponse>
 
-    suspend fun getMangaCollection(userId: Int, collectionId: Int): List<MangaCollection>
+    suspend fun getMangaCollection(userId: Int, collectionId: Int): Response<List<MangaCollection>>
 
-    suspend fun getAllCollection(id: Int): List<Collection>
+    suspend fun getAllCollection(id: Int): Response<List<Collection>>
 
     suspend fun saveCollection(collection: Collection): Response<SuccessResponse>
 

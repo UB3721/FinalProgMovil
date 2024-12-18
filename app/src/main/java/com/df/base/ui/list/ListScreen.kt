@@ -1,5 +1,6 @@
 package com.df.base.ui.list
 
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.Scaffold
@@ -15,6 +16,7 @@ import com.df.base.R
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
+import com.df.base.ui.ShowWarningAlert
 import com.df.base.ui.UiListBody
 import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
@@ -33,6 +35,13 @@ fun ListScreen(
     listViewModel: ListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val listUiState by listViewModel.listUiState.collectAsState()
+    Log.d("delete", listUiState.state.toString())
+    when (val state = listUiState.state) {
+        is ListUiState.State.Error -> {
+            ShowWarningAlert(state.message)
+        }
+        else -> {}
+    }
 
     LaunchedEffect(Unit) {
         listViewModel.setUser(

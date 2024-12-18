@@ -42,6 +42,7 @@ import com.df.base.R
 import com.df.base.model.back.Collection
 import com.df.base.model.back.User
 import com.df.base.ui.AppViewModelProvider
+import com.df.base.ui.ShowWarningAlert
 import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 
@@ -59,6 +60,13 @@ fun CollectionScreen(
     collectionViewModel: CollectionViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val collectionUiState by collectionViewModel.collectionUiState.collectAsState()
+
+    when (val state = collectionUiState.state) {
+        is CollectionUiState.State.Error -> {
+            ShowWarningAlert(state.message)
+        }
+        else -> {}
+    }
 
     LaunchedEffect(Unit) {
         collectionViewModel.setUser(

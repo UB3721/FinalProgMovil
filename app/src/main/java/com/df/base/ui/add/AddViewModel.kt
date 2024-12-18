@@ -91,8 +91,37 @@ class AddViewModel(private val mangasRepository: MangasRepository): ViewModel() 
         )
     }
 
+    fun setUiState() {
+        _uiState.value = _uiState.value.copy(state = AddUiState.State.Loading)
+    }
+
+    private fun validateUserManga(mangaDetails: MangaDetails): Result<Unit> {
+        if (mangaDetails.link.isBlank() || mangaDetails.altLink.isBlank()) {
+            return Result.failure(Exception("Link and AltLink cannot be empty."))
+        }
+
+        val currentChapterFloat = mangaDetails.currentChapter.toFloatOrNull()
+            ?: return Result.failure(Exception("Current chapter must be a valid float number."))
+
+        val ratingFloat = mangaDetails.userRating.toFloatOrNull()
+        if (ratingFloat == null || ratingFloat !in 0f..10f) {
+            return Result.failure(Exception("Rating must be a float between 0 and 10."))
+        }
+
+        return Result.success(Unit)
+    }
+
     suspend fun saveUserManga() {
         _uiState.value = _uiState.value.copy(state = AddUiState.State.Loading)
+
+        val validationResult = validateUserManga(uiState.value.mangaDetails)
+
+        if (validationResult.isFailure) {
+            _uiState.value = _uiState.value.copy(
+                state = AddUiState.State.Error(message = validationResult.exceptionOrNull()?.message ?: "Unknown error")
+            )
+            return
+        }
 
         try {
             val response = mangasRepository.saveUserManga(uiState.value.mangaDetails.toUserManga())
@@ -102,8 +131,10 @@ class AddViewModel(private val mangasRepository: MangasRepository): ViewModel() 
                 Log.d("SaveUserManga", "Success: $successMessage")
 
                 _uiState.value = _uiState.value.copy(
-                    state = AddUiState.State.Success(mangaDetails = uiState.value.mangaDetails)
+                    state = AddUiState.State.Success
                 )
+                Log.d("SaveUserManga", "Updated state: ${_uiState.value.state}")
+
             } else {
                 val errorBody = response.errorBody()?.string() ?: "Unknown error"
                 Log.d("SaveUserManga", "Error: $errorBody")
@@ -121,6 +152,7 @@ class AddViewModel(private val mangasRepository: MangasRepository): ViewModel() 
     }
 
 
+
 }
 
 data class AddUiState(
@@ -134,10 +166,10 @@ data class AddUiState(
     val mangaDetails: MangaDetails = MangaDetails()
 ) {
     sealed class State {
-        object Loading : State()
-        data class Success(val mangaDetails: MangaDetails) : State()
+        data object Loading : State()
+        data object Success : State()
         data class Error(val message: String) : State()
-        object Idle : State()
+        data object Idle : State()
     }
 }
 

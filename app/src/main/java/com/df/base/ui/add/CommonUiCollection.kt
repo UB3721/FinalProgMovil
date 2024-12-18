@@ -27,7 +27,7 @@ fun UiCollection(
             .fillMaxWidth()
             .padding(8.dp)
             .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
-            .padding(8.dp),
+            .padding(top = 0.dp, bottom = 16.dp, start = 8.dp, end = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
@@ -47,7 +47,7 @@ fun UiCollection(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 0.dp, max = 100.dp)
+                    .heightIn(min = 0.dp, max = 300.dp)
             ) {
                 items(collectionList) { collection ->
                     val isSelected = selectedList.contains(collection)

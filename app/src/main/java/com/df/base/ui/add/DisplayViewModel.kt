@@ -53,44 +53,77 @@ class DisplayViewModel(private val mangasRepository: MangasRepository): ViewMode
         )
     }
 
-    fun fetchAllUsers() {
-        viewModelScope.launch {
-            try {
-                val userList = mangasRepository.getAllUsers(_displayUiState.value.userId)
-                _displayUiState.value = _displayUiState.value.copy(userList = userList)
-            } catch (e: Exception) {
-                _displayUiState.value = _displayUiState.value.copy(userList = listOf())
-                println("Error fetching user list: ${e.message}")
+    suspend fun fetchAllUsers() {
+        _displayUiState.value = _displayUiState.value.copy(state = DisplayUiState.State.Loading)
+
+        try {
+            val response = mangasRepository.getAllUsers(_displayUiState.value.userId)
+
+            if (response.isSuccessful) {
+                _displayUiState.value = _displayUiState.value.copy(
+                    state = DisplayUiState.State.Success,
+                    userList = response.body()?: listOf()
+                )
+
+            } else {
+                val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                _displayUiState.value = _displayUiState.value.copy(
+                    state = DisplayUiState.State.Error(message = errorBody)
+                )
             }
+        } catch (e: Exception) {
+            _displayUiState.value = _displayUiState.value.copy(
+                state = DisplayUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+            )
         }
     }
 
     suspend fun saveSharedLink() {
+        _displayUiState.value = _displayUiState.value.copy(state = DisplayUiState.State.Loading)
+
         try {
             val response = mangasRepository.saveSharedLink(displayUiState.value.sharedLink.toSharedLink())
 
             if (response.isSuccessful) {
                 val successMessage = response.body()?.message
                 Log.d("saveSharedLink", "Success: $successMessage")
+                _displayUiState.value = _displayUiState.value.copy(
+                    state = DisplayUiState.State.Success
+                )
             } else {
                 val errorBody = response.errorBody()?.string()
                 Log.d("saveSharedLink", "Error: $errorBody")
+                _displayUiState.value = _displayUiState.value.copy(
+                    state = DisplayUiState.State.Error(message = errorBody ?: "Unknown error")
+                )
             }
         } catch (e: Exception) {
             Log.d("saveSharedLink", "Exception: ${e.message}")
+            _displayUiState.value = _displayUiState.value.copy(
+                state = DisplayUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+            )
         } finally {
             _displayUiState.value = _displayUiState.value.copy(selectedUser = DisplayUser())
         }
     }
+
 }
 
 data class DisplayUiState(
+    val state: State = State.Idle,
     val userId: Int = 0,
     val isDescExpanded: Boolean = false,
     val selectedUser: DisplayUser = DisplayUser(),
     val sharedLink: DisplaySharedLink = DisplaySharedLink(),
     val userList: List<User> = listOf()
-)
+) {
+    sealed class State {
+        object Loading : State()
+        object Success : State()
+        data class Error(val message: String) : State()
+        object Idle : State()
+    }
+}
 
 data class DisplayUser(
     val userId: Int = 0,
