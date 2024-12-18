@@ -5,8 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.asStateFlow
-import android.util.Log
 import com.df.base.data.MangasRepository
 import com.df.base.model.back.LoginRequest
 import com.df.base.model.back.User
@@ -58,15 +56,25 @@ class LoginViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
+            _isLoggedIn.value = false
+            _user.value = null
+        }
+    }
+
+    fun signup(username: String, password: String) {
+        viewModelScope.launch {
             _loginState.value = LoginState.Loading
             try {
-                val response = repository.logout()
+                val signupRequest = LoginRequest(username, password)
+                val response = repository.signup(signupRequest)
+
                 if (response.isSuccessful) {
-                    _isLoggedIn.value = false
-                    _user.value = null
+                    _isLoggedIn.value = true
+                    val userData = response.body()
+                    _user.value = userData
                     _loginState.value = LoginState.Success
                 } else {
-                    _loginState.value = LoginState.Error("Logout failed")
+                    _loginState.value = LoginState.Error("Signup failed")
                 }
             } catch (e: Exception) {
                 _loginState.value = LoginState.Error(e.localizedMessage ?: "Unknown error")

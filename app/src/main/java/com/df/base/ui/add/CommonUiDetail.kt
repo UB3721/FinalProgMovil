@@ -1,5 +1,7 @@
 package com.df.base.ui.add
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,10 +31,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.df.base.R
 import com.df.base.model.back.User
+import com.df.base.model.back.toJson
 
 @Composable
 fun UiDetail(
@@ -84,9 +94,54 @@ fun UiDetail(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.main_link_display, userManga.link))
-                    Text(text = stringResource(R.string.alt_link_display, userManga.altLink))
+
+                    val mainLinkText = buildAnnotatedString {
+                        append("Main link: ")
+                        withLink(LinkAnnotation.Url(url = userManga.toUserManga().link)) {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textDecoration = TextDecoration.Underline
+                                )
+                            ) {
+                                append(userManga.toUserManga().link)
+                            }
+                        }
+                    }
+
+                    val altLinkText = buildAnnotatedString {
+                        append("Alt link: ")
+                        withLink(LinkAnnotation.Url(url = userManga.toUserManga().altLink)) {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textDecoration = TextDecoration.Underline
+                                )
+                            ) {
+                                append(userManga.toUserManga().altLink)
+                            }
+                        }
+                    }
+
+                    val context = LocalContext.current
+
+                    Text(
+                        text = mainLinkText,
+                        modifier = Modifier.clickable {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(userManga.toUserManga().link))
+                            context.startActivity(intent)
+                        }
+                    )
+
+                    Text(
+                        text = altLinkText,
+                        modifier = Modifier.clickable {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(userManga.toUserManga().altLink))
+                            context.startActivity(intent)
+                        }
+                    )
                 }
+
                 IconButton(
                     onClick = {
                         onSharedClicked()

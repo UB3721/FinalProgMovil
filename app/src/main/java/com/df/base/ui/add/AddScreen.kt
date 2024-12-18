@@ -30,6 +30,7 @@ import com.df.base.R
 import com.df.base.model.back.User
 import com.df.base.ui.AppViewModelProvider
 import com.df.base.ui.SelectedManga
+import com.df.base.ui.ShowWarningAlert
 import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
@@ -57,6 +58,13 @@ fun AddScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val uiState by addViewModel.uiState.collectAsState()
+
+    when (val state = uiState.state) {
+        is AddUiState.State.Error -> {
+            ShowWarningAlert(state.message)
+        }
+        else -> {}
+    }
 
     val readingStatus = listOf(
         stringResource(R.string.reading),
@@ -104,7 +112,9 @@ fun AddScreen(
             onSaveClick = {
                 coroutineScope.launch {
                     addViewModel.saveUserManga()
-                    navigateBack()
+                    if (uiState.state is AddUiState.State.Success) {
+                        navigateBack()
+                    }
                 }
             },
             onFavoriteChanged = {addViewModel.updateIsFavoriteChanged()},
@@ -138,6 +148,7 @@ fun AddScreenContent(
     onSaveClick: () -> Unit,
     onFavoriteChanged: () -> Unit
 ) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()

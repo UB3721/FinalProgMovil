@@ -14,7 +14,7 @@ import retrofit2.Response
 interface MangasRepository {
     suspend fun login(loginRequest: LoginRequest) : Response<User>
 
-    suspend fun logout(): Response<Unit>
+    suspend fun signup(loginRequest: LoginRequest) : Response<User>
 
     suspend fun getUserByUsername(username: String): User
 

@@ -67,7 +67,6 @@ class DisplayViewModel(private val mangasRepository: MangasRepository): ViewMode
 
     suspend fun saveSharedLink() {
         try {
-            Log.d("wtf", displayUiState.value.sharedLink.toString())
             val response = mangasRepository.saveSharedLink(displayUiState.value.sharedLink.toSharedLink())
 
             if (response.isSuccessful) {

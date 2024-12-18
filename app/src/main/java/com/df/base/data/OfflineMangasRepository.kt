@@ -20,7 +20,9 @@ class OfflineMangasRepository(
         return apiService.login(loginRequest)
     }
 
-    override suspend fun logout(): Response<Unit> = apiService.logout()
+    override suspend fun signup(loginRequest: LoginRequest) : Response<User> {
+        return apiService.signup(loginRequest)
+    }
 
     override suspend fun saveUserManga(userManga: UserManga): Response<SuccessResponse> {
         return apiService.saveUserMangaWithManga(userManga)

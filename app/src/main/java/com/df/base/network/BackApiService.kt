@@ -148,8 +148,8 @@ interface BackApiService {
     @POST("users/login")
     suspend fun login(@Body loginRequest: LoginRequest): Response<User>
 
-    @POST("users/logout")
-    suspend fun logout(): Response<Unit>
+    @POST("users/signup")
+    suspend fun signup(@Body loginRequest: LoginRequest): Response<User>
 }
 
 object BackApi {

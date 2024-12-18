@@ -119,6 +119,7 @@ fun ProjectNavHost(
             ProfileScreen(
                 loginViewModel = loginViewModel,
                 navController = navController,
+                navigateToLogin = {navController.navigate(LoginDestination.route)},
                 navigateToEdit = { userManga ->
                     navController.navigate(EditDestination.routeWithArgs(userManga))
                 }

@@ -10,9 +10,11 @@
     <string name = "display"> Manga </string>
     <string name = "collection_manga">Collection Manga</string>
     <string name = "login">Login</string>
-
+    <string name="no_data_available">No data available</string>
     <string name = "delete">Delete this media</string>
     <string name="collection_delete">Delete media from collection</string>
+    <string name="warning">Warning</string>
+    <string name="ok">Ok</string>
 
     <string name="description_search">Search Manga</string>
     <string name="no_results_found">No results found</string>

@@ -1,6 +1,5 @@
 package com.df.base.ui.profile
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -22,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -59,8 +59,6 @@ import com.df.base.model.back.UserManga
 import com.df.base.ui.AppViewModelProvider
 import com.df.base.ui.CommonDialog
 import com.df.base.ui.MangaAction
-import com.df.base.ui.add.AddDestination
-import com.df.base.ui.add.MangaDetails
 import com.df.base.ui.add.toMangaDetails
 import com.df.base.ui.login.LoginViewModel
 import com.df.base.ui.navigation.NavigationDestination
@@ -81,6 +79,7 @@ object ProfileDestination: NavigationDestination {
 fun ProfileScreen(
     loginViewModel: LoginViewModel,
     navController: NavController,
+    navigateToLogin: () -> Unit,
     navigateToEdit: (UserManga) -> Unit,
     profileViewModel: ProfileViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -118,6 +117,10 @@ fun ProfileScreen(
             deleteLink = { sharedLink ->
                 profileViewModel.removeSharedLink(sharedLink)
                          },
+            logout = {
+                loginViewModel.logout()
+                navigateToLogin()
+            },
             setUserMangaStatus = { status, manga ->
                 profileViewModel.setUserMangaReadingStatus(status, manga)
             }
@@ -134,6 +137,7 @@ fun ProfileBody(
     sharedLinkList: List<SharedLink>,
     navigateToEdit: (UserManga) -> Unit,
     deleteLink: (SharedLink) -> Unit,
+    logout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -141,19 +145,30 @@ fun ProfileBody(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            IconButton(onClick = { logout() }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                    contentDescription = "Logout"
+                )
+            }
+        }
 
         Text(
             text = username,
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(vertical = 30.dp)
+            modifier = Modifier.padding(vertical = 20.dp)
         )
 
-        if (userStats.onHold != 0 && userStats.dropped != 0 && userStats.reading != 0 && userStats.completed != 0) {
+        if (userStats.onHold != 0 || userStats.dropped != 0 || userStats.reading != 0 || userStats.completed != 0) {
             StatisticalPie(userStats = userStats)
         } else {
             Text(
-                text = "Add mangas to see your pie chart",
+                text = stringResource(R.string.no_data_available),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = modifier.padding(start = 16.dp, bottom = 8.dp)
@@ -191,16 +206,28 @@ fun StatisticalPie(
     val onBackground = MaterialTheme.colorScheme.onBackground.toArgb()
     val onPrimary = MaterialTheme.colorScheme.onPrimary.toArgb()
 
-    val pieEntries = listOf(
+    val allPieEntries = listOf(
         PieEntry(userStats.reading.toFloat(), stringResource(R.string.reading)),
         PieEntry(userStats.completed.toFloat(), stringResource(R.string.completed)),
         PieEntry(userStats.onHold.toFloat(), stringResource(R.string.on_hold)),
         PieEntry(userStats.dropped.toFloat(), stringResource(R.string.dropped))
     )
 
-    val pieData = remember(pieEntries, colors) {
-        PieData(PieDataSet(pieEntries, "").apply {
-            setColors(colors)
+    val filteredPieEntries = allPieEntries.filter { it.value > 0 }
+
+    if (filteredPieEntries.isEmpty()) {
+        Text(
+            text = stringResource(R.string.no_data_available),
+            modifier = Modifier.padding(16.dp),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        return
+    }
+
+    val pieData = remember(filteredPieEntries, colors) {
+        PieData(PieDataSet(filteredPieEntries, "").apply {
+            setColors(colors.take(filteredPieEntries.size))
             valueTextSize = 24f
             valueTextColor = onPrimary
             setDrawValues(true)
@@ -245,6 +272,8 @@ fun StatisticalPie(
             .padding(16.dp)
     )
 }
+
+
 
 
 @Composable

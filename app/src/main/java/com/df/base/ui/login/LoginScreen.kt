@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.df.base.R
 import com.df.base.ui.AppViewModelProvider
+import com.df.base.ui.ShowWarningAlert
 import com.df.base.ui.navigation.NavigationDestination
 
 object LoginDestination: NavigationDestination {
@@ -27,6 +28,7 @@ fun LoginScreen(
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isSignupMode by remember { mutableStateOf(false) }
 
     val loginState by loginViewModel.loginState.collectAsState()
     val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
@@ -66,7 +68,13 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { loginViewModel.login(username, password) },
+            onClick = {
+                if (isSignupMode) {
+                    loginViewModel.signup(username, password)
+                } else {
+                    loginViewModel.login(username, password)
+                }
+            },
             enabled = username.isNotEmpty() && password.isNotEmpty() && loginState != LoginState.Loading,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -76,8 +84,17 @@ fun LoginScreen(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Text("Login")
+                Text(if (isSignupMode) "Sign Up" else "Login")
             }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TextButton(onClick = { isSignupMode = !isSignupMode }) {
+            Text(
+                text = if (isSignupMode) "Already have an account? Login" else "Don't have an account? Sign Up",
+                color = MaterialTheme.colorScheme.primary
+            )
         }
 
         if (loginState is LoginState.Error) {
@@ -89,3 +106,4 @@ fun LoginScreen(
         }
     }
 }
+

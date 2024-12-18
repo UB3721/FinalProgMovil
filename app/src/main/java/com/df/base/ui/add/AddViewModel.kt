@@ -2,25 +2,20 @@ package com.df.base.ui.add
 
 import android.util.Log
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.df.base.data.MangasRepository
 import com.df.base.model.back.Collection
 import com.df.base.model.back.MangaBack
-import com.df.base.model.back.MangaCollection
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
 import com.df.base.ui.SelectedManga
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
@@ -97,26 +92,39 @@ class AddViewModel(private val mangasRepository: MangasRepository): ViewModel() 
     }
 
     suspend fun saveUserManga() {
+        _uiState.value = _uiState.value.copy(state = AddUiState.State.Loading)
+
         try {
             val response = mangasRepository.saveUserManga(uiState.value.mangaDetails.toUserManga())
 
             if (response.isSuccessful) {
                 val successMessage = response.body()?.message
                 Log.d("SaveUserManga", "Success: $successMessage")
+
+                _uiState.value = _uiState.value.copy(
+                    state = AddUiState.State.Success(mangaDetails = uiState.value.mangaDetails)
+                )
             } else {
-                val errorBody = response.errorBody()?.string()
+                val errorBody = response.errorBody()?.string() ?: "Unknown error"
                 Log.d("SaveUserManga", "Error: $errorBody")
+
+                _uiState.value = _uiState.value.copy(
+                    state = AddUiState.State.Error(message = errorBody)
+                )
             }
         } catch (e: Exception) {
             Log.d("SaveUserManga", "Exception: ${e.message}")
+            _uiState.value = _uiState.value.copy(
+                state = AddUiState.State.Error(message = e.localizedMessage ?: "Unknown error")
+            )
         }
     }
-
 
 
 }
 
 data class AddUiState(
+    val state: State = State.Idle,
     val userCollectionList: List<Collection> = listOf(),
     val selectedCollectionList: List<Collection> = listOf(),
     val isTitleExpanded: Boolean = false,
@@ -124,7 +132,15 @@ data class AddUiState(
     val readingStatus: List<String> = listOf(),
     val isFavoriteIcon: ImageVector = Icons.Outlined.Star,
     val mangaDetails: MangaDetails = MangaDetails()
-)
+) {
+    sealed class State {
+        object Loading : State()
+        data class Success(val mangaDetails: MangaDetails) : State()
+        data class Error(val message: String) : State()
+        object Idle : State()
+    }
+}
+
 
 data class MangaDetails(
     val userId: Int = 0,
