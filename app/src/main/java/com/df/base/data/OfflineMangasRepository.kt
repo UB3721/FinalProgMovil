@@ -3,6 +3,7 @@ package com.df.base.data
 import com.df.base.model.back.Collection
 import com.df.base.model.back.LoginRequest
 import com.df.base.model.back.MangaCollection
+import com.df.base.model.back.MangaCollectionRequest
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
@@ -47,7 +48,7 @@ class OfflineMangasRepository(
 
     override suspend fun getUserStatistics(id: Int): UserStatistics = apiService.getUserStatistics(id)
 
-    override suspend fun saveMangaCollection(mangaCollection: MangaCollection): Response<SuccessResponse> = apiService.saveMangaCollection(mangaCollection)
+    override suspend fun saveMangaCollection(mangaCollectionRequest: MangaCollectionRequest): Response<SuccessResponse> = apiService.saveMangaCollection(mangaCollectionRequest)
 
     override suspend fun getAllCollection(id: Int): List<Collection> = apiService.getAllCollection(id)
 
@@ -62,6 +63,8 @@ class OfflineMangasRepository(
     override suspend fun deleteCollection(userId: Int, collectionId: Int): Response<SuccessResponse> = apiService.deleteCollection(userId, collectionId)
 
     override suspend fun deleteMangaCollection(userId: Int, collectionId: Int, mangaId: Int): Response<SuccessResponse> = apiService.deleteMangaCollection(userId, collectionId, mangaId)
+
+    override suspend fun getCollectionByMangaId(mangaId: Int, userId: Int): List<Collection> = apiService.getCollectionByMangaId(mangaId, userId)
 
     override suspend fun deleteUserManga(userId: Int, mangaId: Int): Response<SuccessResponse> = apiService.deleteUserManga(userId, mangaId)
 }

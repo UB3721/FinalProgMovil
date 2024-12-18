@@ -64,10 +64,11 @@ class CollectionViewModel(private val mangasRepository: MangasRepository) : View
         )
     }
 
+
     fun fetchAllCollections() {
         viewModelScope.launch {
             try {
-                val collectionList = mangasRepository.getAllCollection(1)
+                val collectionList = mangasRepository.getAllCollection(_collectionUiState.value.userId)
                 _collectionUiState.value = _collectionUiState.value.copy(
                     userCollectionList = collectionList
                 )

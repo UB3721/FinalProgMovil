@@ -4,6 +4,7 @@ import androidx.room.Delete
 import com.df.base.model.back.Collection
 import com.df.base.model.back.LoginRequest
 import com.df.base.model.back.MangaCollection
+import com.df.base.model.back.MangaCollectionRequest
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
@@ -68,7 +69,7 @@ interface BackApiService {
         @Query("userId") userId: Int
     ): User
 
-    @GET("user/{username{")
+    @GET("user/{username}")
     suspend fun getUserByUsername(
         @Path("userName") userName: String
     ): User
@@ -95,7 +96,7 @@ interface BackApiService {
 
     @POST("mangaCollection")
     suspend fun saveMangaCollection(
-        @Body request: MangaCollection
+        @Body request: MangaCollectionRequest
     ): Response<SuccessResponse>
 
     @DELETE("mangaCollection")
@@ -110,6 +111,12 @@ interface BackApiService {
         @Query("userId") userId: Int,
         @Query("collectionId") collectionId: Int
     ): List<MangaCollection>
+
+    @GET("collection/{mangaId}/{userId}")
+    suspend fun getCollectionByMangaId(
+        @Path("mangaId") mangaId: Int,
+        @Path("userId") userId: Int
+    ): List<Collection>
 
     @GET("collection")
     suspend fun getAllCollection(

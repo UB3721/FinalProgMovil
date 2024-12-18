@@ -61,7 +61,7 @@ class CollectionMangaViewModel(
             try {
                 val mangaCollectionList = mangasRepository.getMangaCollection(
                     collectionId = collectionId,
-                    userId = 1
+                    userId = _collectionMangaUiState.value.userId
                 )
                 _collectionMangaUiState.value = _collectionMangaUiState.value.copy(
                     mangaCollectionList = mangaCollectionList

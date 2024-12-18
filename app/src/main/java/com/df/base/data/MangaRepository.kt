@@ -3,6 +3,7 @@ package com.df.base.data
 import com.df.base.model.back.Collection
 import com.df.base.model.back.LoginRequest
 import com.df.base.model.back.MangaCollection
+import com.df.base.model.back.MangaCollectionRequest
 import com.df.base.model.back.SharedLink
 import com.df.base.model.back.User
 import com.df.base.model.back.UserManga
@@ -12,6 +13,7 @@ import retrofit2.Response
 
 interface MangasRepository {
     suspend fun login(loginRequest: LoginRequest) : Response<User>
+
     suspend fun logout(): Response<Unit>
 
     suspend fun getUserByUsername(username: String): User
@@ -36,7 +38,9 @@ interface MangasRepository {
 
     suspend fun getUserStatistics(id: Int): UserStatistics
 
-    suspend fun saveMangaCollection(mangaCollection: MangaCollection): Response<SuccessResponse>
+    suspend fun saveMangaCollection(mangaCollectionRequest: MangaCollectionRequest): Response<SuccessResponse>
+
+    suspend fun getCollectionByMangaId(mangaId: Int, userId: Int): List<Collection>
 
     suspend fun deleteMangaCollection(userId: Int, collectionId: Int, mangaId: Int): Response<SuccessResponse>
 
